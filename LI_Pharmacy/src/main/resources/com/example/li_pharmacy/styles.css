@@ -1,0 +1,31 @@
+.button:hover {
+    -fx-cursor: hand;
+}
+.bar:hover {
+    -fx-cursor: open_hand;
+}
+
+.close, .min, .notActive {
+    -fx-background-color: whitesmoke;
+    -fx-text-fill: black;
+}
+.close:hover {
+    -fx-background-color: red;
+}
+.min:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+.active {
+    -fx-background-color: maroon;
+    -fx-text-fill: white;
+    -fx-border-color:  whitesmoke;
+}
+.notActive {
+    -fx-text-fill: black;
+}
+.active, .notActive {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-label-padding: 2px;
+}
