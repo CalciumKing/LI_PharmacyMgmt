@@ -51,10 +51,10 @@ public class Utils {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(sceneName));
             Parent root = fxmlLoader.load();
             
-            if (user != null) {
-                DashboardController dashboardController = fxmlLoader.getController();
-                dashboardController.welcomeName(user);
-            }
+//            if (user != null) {
+//                DashboardController dashboardController = fxmlLoader.getController();
+//                dashboardController.welcomeName(user);
+//            }
             
             Stage stage = new Stage();
             stage.initStyle(StageStyle.TRANSPARENT);
@@ -77,7 +77,7 @@ public class Utils {
             imageView.setImage(image);
     }
     
-    public static boolean regexValidation(String email, String password) {
+    public static boolean regexValidation(String password) {
         // region Regex Characters
         // . any single character
         // * 0 or more occurrences of the preceding element
@@ -92,13 +92,15 @@ public class Utils {
         // \\d shortcut for 0-9
         //endregion
         
-        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._]+\\.[a-zA-Z]{2,6}$";
+//        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9._]+\\.[a-zA-Z]{2,6}$";
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[/~`!@#$%^&*()_+{};:',<.>? =]).{8,}$";
         
-        if (!Pattern.compile(emailRegex).matcher(email).matches()) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Email", "Please Enter A Valid Email That Contains An '@' And A '.com'");
-            return true;
-        } else if (password != null && !Pattern.compile(passwordRegex).matcher(password).matches()) {
+//        if (!Pattern.compile(emailRegex).matcher(email).matches()) {
+//            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Email", "Please Enter A Valid Email That Contains An '@' And A '.com'");
+//            return true;
+//        }
+        
+        if (password != null && !Pattern.compile(passwordRegex).matcher(password).matches()) {
             Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Password", "Please Enter A Valid Password That Contains At Least 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number, and 1 Special Character");
             return true;
         }

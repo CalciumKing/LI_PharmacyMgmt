@@ -3,15 +3,20 @@ package com.example.li_pharmacy;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
-public class SignupLoginController {
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class SignupLoginController implements Initializable {
     //region Variables
+    private int pageStatus = 0;
     @FXML
-    private AnchorPane page, resetPane1, resetPane2, loginPane, signupPane;
-    private String[] securityQuestions = new String[]{
+    private AnchorPane page, forgotPasswordPane, securityQuestionPane, loginPane, signupPane;
+    private final String[] securityQuestions = new String[]{
             "What was the name of your favorite childhood pet?",
             "What year was your grandmother born?",
             "What month was your first child born?",
@@ -19,47 +24,60 @@ public class SignupLoginController {
             "What was the name of your school physical education teacher?",
             "In which area of the city is your place of work located?"
     };
+    private String securityQuestion;
+    private String securityAnswer;
     @FXML
     private ChoiceBox<String> choiceBox;
     @FXML
-    private Label formText;
+    private Label securityQuestionLabel;
     @FXML
-    private Button login, signup, forgotPassword, formButton, resetPasswordButton;
+    private Button login, signup;
     @FXML
-    private TextField username;
+    private TextField username, securityAnswerField, newPasswordField;
     @FXML
-    private PasswordField password;
+    private PasswordField loginPassword, signupPassword;
+    
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        for (String item : securityQuestions)
+            choiceBox.getItems().add(item);
+        choiceBox.setOnAction((event -> securityQuestion = choiceBox.getSelectionModel().getSelectedItem()));
+    }
     // endregion
     
     @FXML
     private void changeForm() {
+        System.out.println("Working");
         ObservableList<String> shortLogin = login.getStyleClass(), shortSignUp = signup.getStyleClass();
         if (shortLogin.contains("active")) { // switching to signup
-            formText.setText("Signup Form");
+            loginPane.setVisible(false);
+            signupPane.setVisible(true);
+            forgotPasswordPane.setVisible(false);
+            securityQuestionPane.setVisible(false);
+            pageStatus = 1;
+            
             shortLogin.remove("active");
-            shortLogin.add("notActive");
             shortSignUp.remove("notActive");
+            shortLogin.add("notActive");
             shortSignUp.add("active");
             
-            confirmPassword.setVisible(true);
-            formButton.setText("Sign Up");
-            forgotPassword.setVisible(false);
-            
         } else { // switching to login
-            formText.setText("Login Form");
-            formButton.setText("Login");
-            shortSignUp.remove("active");
-            if (!shortSignUp.contains("notActive"))
-                shortSignUp.add("notActive");
-            shortLogin.remove("notActive");
-            shortLogin.add("active");
+            loginPane.setVisible(false);
+            signupPane.setVisible(true);
+            forgotPasswordPane.setVisible(false);
+            securityQuestionPane.setVisible(false);
+            pageStatus = 0;
             
-            confirmPassword.setVisible(false);
-            formButton.setText("Login");
-            password.setPromptText("Password:");
-            forgotPassword.setVisible(true);
-            resetPasswordButton.setVisible(false);
-            formButton.setVisible(true);
+            shortLogin.add("active");
+            shortSignUp.add("notActive");
+            shortLogin.remove("notActive");
+            shortSignUp.remove("active");
+            
+//            shortSignUp.remove("active");
+//            if (!shortSignUp.contains("notActive"))
+//                shortSignUp.add("notActive");
+//            shortLogin.remove("notActive");
+//            shortLogin.add("active");
         }
         
         clearForm();
@@ -67,22 +85,64 @@ public class SignupLoginController {
     
     private void clearForm() {
         username.clear();
-        password.clear();
-        confirmPassword.clear();
+        loginPassword.clear();
+        securityAnswerField.clear();
+        securityQuestionLabel.setText("Security Question Here");
+        signupPassword.clear();
+        securityQuestion = "";
+        securityAnswer = "";
     }
     
     @FXML
-    void forgotPassword(ActionEvent event) {
+    private void forgotPassword() {
+        loginPane.setVisible(false);
+        forgotPasswordPane.setVisible(true);
+        pageStatus = 3;
+        
+        ObservableList<String> shortLogin = login.getStyleClass();
+        if (shortLogin.contains("active") && !shortLogin.contains("notActive")) {
+            shortLogin.remove("active");
+            shortLogin.add("notActive");
+        }
+    }
+    
+    @FXML
+    private void checkValidUser() {
+        String name = username.getText();
+        if(pageStatus == 3 && SQLUtils.getUser(name) != null) {
+            String[] securityInfo = SQLUtils.getSecurityInfo(name);
+            if(securityInfo == null) return;
+            
+            securityQuestion = securityInfo[0];
+            securityAnswer = securityInfo[1];
+            securityQuestionLabel.setText(securityQuestion);
+            
+            securityQuestionPane.setVisible(true);
+        }
+    }
+    
+    @FXML
+    private void resetPassword() {
+        if(securityAnswerField.getText().equals(securityAnswer)) {
+            SQLUtils.setPassword(username.getText(), newPasswordField.getText());
+            
+            securityQuestionPane.setVisible(false);
+            forgotPasswordPane.setVisible(false);
+            loginPane.setVisible(true);
+            
+            ObservableList<String> shortLogin = login.getStyleClass();
+            shortLogin.add("active");
+            shortLogin.remove("notActive");
+        }
+    }
+    
+    @FXML
+    private void login() {
     
     }
     
     @FXML
-    void formSubmit(ActionEvent event) {
-    
-    }
-    
-    @FXML
-    void resetPassword(ActionEvent event) {
+    private void createUser() {
     
     }
     
