@@ -46,6 +46,7 @@ public class SignupLoginController implements Initializable {
     }
     // endregion
     
+    // region Form Methods
     @FXML
     private void changeForm() {
         ObservableList<String> shortLogin = login.getStyleClass(), shortSignUp = signup.getStyleClass();
@@ -152,6 +153,8 @@ public class SignupLoginController implements Initializable {
         }
     }
     
+    // endregion
+    
     @FXML
     private void login() {
         User user = SQLUtils.login(username.getText(), loginPassword.getText());
@@ -170,10 +173,6 @@ public class SignupLoginController implements Initializable {
     private void createUser() {
         if (validForm()) {
             User user = SQLUtils.register(username.getText(), signupPassword.getText(), choiceBox.getValue(), newSecurityAnswerField.getText());
-            if (user == null) {
-                Utils.errorAlert(Alert.AlertType.ERROR, "Null User", "That User Already Exists", "Please enter information for a user that does not already exist.");
-                return;
-            }
             
             clearForm();
             Utils.changeScene("dashboard.fxml", user);
@@ -183,42 +182,47 @@ public class SignupLoginController implements Initializable {
     
     // region Form Validation
     private boolean validForm() {
-        String name = username.getText(), pass = loginPassword.getText(), newPass = newPasswordField.getText(), secQuestion = choiceBox.getValue(), secAnswer = newSecurityAnswerField.getText();
+        String name = username.getText(), newPass = newPasswordField.getText(), signPass = signupPassword.getText(), secAnswer = newSecurityAnswerField.getText();
         User user = SQLUtils.getUser(name);
         
         if (isFormEmpty()) {
             Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
             return false;
-        } else if (signup.getStyleClass().contains("active")) {
-            if (user != null) {
-                Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Already Exists", "Please enter information for a user that does not already exist.");
-                return false;
-            } else return Utils.regexValidation(pass);
-        } else if (login.getStyleClass().contains("active")) {
-            if (user == null) {
-                Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Does Not Exist", "Please enter valid information for a user that does already exists.");
-                return false;
-            } else if (user.getSecurityAnswer() != null && !user.getSecurityAnswer().equals(secAnswer)) {
-                Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Passwords Must Match", "Password And Confirm Password Must Match");
-                return false;
-            }
-        } else return Utils.regexValidation(newPass);
-        
-        return true;
+        } else if (signup.getStyleClass().contains("active"))
+            return checkSignupForm(user, signPass);
+        else if (login.getStyleClass().contains("active"))
+            return !checkLoginForm(user, secAnswer);
+        else return Utils.regexValidation(newPass);
+    }
+    
+    private static boolean checkLoginForm(User user, String secAnswer) {
+        if (user == null) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Does Not Exist", "Please enter valid information for a user that does already exists.");
+            return true;
+        } else if (user.getSecurityAnswer() != null && !user.getSecurityAnswer().equals(secAnswer)) {
+            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Passwords Must Match", "Password And Confirm Password Must Match");
+            return true;
+        }
+        return false;
+    }
+    
+    private static boolean checkSignupForm(User user, String signPass) {
+        if (user != null) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Already Exists", "Please enter information for a user that does not already exist.");
+            return false;
+        } else return Utils.regexValidation(signPass);
     }
     
     private boolean isFormEmpty() {
         if (username.getText().isEmpty())
-            return false;
-        else if (signup.getStyleClass().contains("active") &&
-                (choiceBox.getValue().isEmpty() ||
-                        newSecurityAnswerField.getText().isEmpty() ||
-                        signupPassword.getText().isEmpty()))
-            return false;
-        else if (login.getStyleClass().contains("active") &&
-                loginPassword.getText().isEmpty())
-            return false;
-        else return !securityAnswerField.getText().isEmpty() && !newPasswordField.getText().isEmpty();
+            return true;
+        else if (signup.getStyleClass().contains("active")) {
+            return choiceBox.getValue().isEmpty() ||
+                    newSecurityAnswerField.getText().isEmpty() ||
+                    signupPassword.getText().isEmpty();
+        } else if (login.getStyleClass().contains("active")) {
+            return loginPassword.getText().isEmpty();
+        } else return securityAnswerField.getText().isEmpty() || newPasswordField.getText().isEmpty();
     }
     // endregion
     

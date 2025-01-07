@@ -5,6 +5,13 @@
     -fx-cursor: open_hand;
 }
 
+.nav {
+    -fx-text-fill: whitesmoke;
+}
+.nav:hover {
+    -fx-text-fill: grey;
+}
+
 .close, .min, .notActive {
     -fx-background-color: whitesmoke;
     -fx-text-fill: black;

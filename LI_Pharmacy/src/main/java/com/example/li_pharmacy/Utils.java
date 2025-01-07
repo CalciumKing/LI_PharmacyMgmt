@@ -35,6 +35,14 @@ public class Utils {
         alert.setContentText(contentText);
         return alert;
     }
+    
+    public static Optional<ButtonType> confirmAlert(Alert.AlertType type, String title, String headerText, String contentText) {
+        Alert alert = createAlert(type, title, headerText, contentText);
+        ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
+        ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
+        alert.getButtonTypes().setAll(yes, no);
+        return alert.showAndWait();
+    }
     // endregion Alert Methods
     
     // region Random Utils
@@ -43,17 +51,16 @@ public class Utils {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource(sceneName));
             Parent root = fxmlLoader.load();
             
-//            if (user != null) {
-//                DashboardController dashboardController = fxmlLoader.getController();
-//                dashboardController.welcomeName(user);
-//            }
+            if (user != null) {
+                DashboardController dashboardController = fxmlLoader.getController();
+                dashboardController.welcomeName(user);
+            }
             
             Stage stage = new Stage();
             stage.initStyle(StageStyle.TRANSPARENT);
-            stage.setTitle("Automotive Application");
+            stage.setTitle("Pharmacy Application");
             stage.setScene(new Scene(root));
             stage.show();
-            
         } catch (Exception ignored) {
             errorAlert(Alert.AlertType.ERROR, "Scene Error", "Error Changing Scene", "There was an error changing scenes, please try again");
         }
@@ -73,7 +80,6 @@ public class Utils {
         // .{8, } at least 8 characters
         // \\d shortcut for 0-9
         //endregion
-        
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[/~`!@#$%^&*()_+{};:',<.>? =]).{8,}$";
         
         if (password != null && !Pattern.compile(passwordRegex).matcher(password).matches()) {
