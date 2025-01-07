@@ -29,11 +29,11 @@ public class SignupLoginController implements Initializable {
     @FXML
     private ChoiceBox<String> choiceBox;
     @FXML
-    private Label securityQuestionLabel;
+    private Label securityQuestionLabel, formText;
     @FXML
     private Button login, signup;
     @FXML
-    private TextField username, securityAnswerField, newPasswordField;
+    private TextField username, securityAnswerField, newPasswordField, newSecurityAnswerField;
     @FXML
     private PasswordField loginPassword, signupPassword;
     
@@ -42,12 +42,12 @@ public class SignupLoginController implements Initializable {
         for (String item : securityQuestions)
             choiceBox.getItems().add(item);
         choiceBox.setOnAction((event -> securityQuestion = choiceBox.getSelectionModel().getSelectedItem()));
+        choiceBox.setValue("Choose Security Question");
     }
     // endregion
     
     @FXML
     private void changeForm() {
-        System.out.println("Working");
         ObservableList<String> shortLogin = login.getStyleClass(), shortSignUp = signup.getStyleClass();
         if (shortLogin.contains("active")) { // switching to signup
             loginPane.setVisible(false);
@@ -61,9 +61,11 @@ public class SignupLoginController implements Initializable {
             shortLogin.add("notActive");
             shortSignUp.add("active");
             
+            formText.setText("Signup Form:");
+            
         } else { // switching to login
-            loginPane.setVisible(false);
-            signupPane.setVisible(true);
+            loginPane.setVisible(true);
+            signupPane.setVisible(false);
             forgotPasswordPane.setVisible(false);
             securityQuestionPane.setVisible(false);
             pageStatus = 0;
@@ -73,11 +75,7 @@ public class SignupLoginController implements Initializable {
             shortLogin.remove("notActive");
             shortSignUp.remove("active");
             
-//            shortSignUp.remove("active");
-//            if (!shortSignUp.contains("notActive"))
-//                shortSignUp.add("notActive");
-//            shortLogin.remove("notActive");
-//            shortLogin.add("active");
+            formText.setText("Login Form:");
         }
         
         clearForm();
@@ -87,10 +85,13 @@ public class SignupLoginController implements Initializable {
         username.clear();
         loginPassword.clear();
         securityAnswerField.clear();
+        newPasswordField.clear();
         securityQuestionLabel.setText("Security Question Here");
         signupPassword.clear();
         securityQuestion = "";
         securityAnswer = "";
+        newSecurityAnswerField.clear();
+        choiceBox.setValue("Choose Security Question");
     }
     
     @FXML
@@ -98,6 +99,8 @@ public class SignupLoginController implements Initializable {
         loginPane.setVisible(false);
         forgotPasswordPane.setVisible(true);
         pageStatus = 3;
+        
+        formText.setText("Forgot Password Form:");
         
         ObservableList<String> shortLogin = login.getStyleClass();
         if (shortLogin.contains("active") && !shortLogin.contains("notActive")) {
@@ -109,21 +112,32 @@ public class SignupLoginController implements Initializable {
     @FXML
     private void checkValidUser() {
         String name = username.getText();
-        if(pageStatus == 3 && SQLUtils.getUser(name) != null) {
+        if (pageStatus == 3 && SQLUtils.getUser(name) != null) {
             String[] securityInfo = SQLUtils.getSecurityInfo(name);
-            if(securityInfo == null) return;
+            if (securityInfo == null) return;
             
             securityQuestion = securityInfo[0];
             securityAnswer = securityInfo[1];
             securityQuestionLabel.setText(securityQuestion);
             
             securityQuestionPane.setVisible(true);
+        } else {
+            securityQuestionLabel.setText("Security Question Here");
+            securityQuestionPane.setVisible(false);
         }
     }
     
     @FXML
     private void resetPassword() {
-        if(securityAnswerField.getText().equals(securityAnswer)) {
+        System.out.println(securityAnswerField.getText());
+        System.out.println(securityAnswer);
+        System.out.println();
+        if (!securityAnswerField.getText().equals(securityAnswer)) {
+            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Non-Matching Fields", "The Security Question Field Does Not Match The Security Questions Answer.");
+            return;
+        }
+        
+        if (validForm()) {
             SQLUtils.setPassword(username.getText(), newPasswordField.getText());
             
             securityQuestionPane.setVisible(false);
@@ -133,18 +147,80 @@ public class SignupLoginController implements Initializable {
             ObservableList<String> shortLogin = login.getStyleClass();
             shortLogin.add("active");
             shortLogin.remove("notActive");
+            
+            clearForm();
         }
     }
     
     @FXML
     private void login() {
-    
+        User user = SQLUtils.login(username.getText(), loginPassword.getText());
+        
+        if (user == null) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Null User", "That User Does Not Exist", "Please enter information for a user that does already exist.");
+            return;
+        }
+        
+        clearForm();
+        Utils.changeScene("dashboard.fxml", user);
+        page.getScene().getWindow().hide();
     }
     
     @FXML
     private void createUser() {
-    
+        if (validForm()) {
+            User user = SQLUtils.register(username.getText(), signupPassword.getText(), choiceBox.getValue(), newSecurityAnswerField.getText());
+            if (user == null) {
+                Utils.errorAlert(Alert.AlertType.ERROR, "Null User", "That User Already Exists", "Please enter information for a user that does not already exist.");
+                return;
+            }
+            
+            clearForm();
+            Utils.changeScene("dashboard.fxml", user);
+            page.getScene().getWindow().hide();
+        }
     }
+    
+    // region Form Validation
+    private boolean validForm() {
+        String name = username.getText(), pass = loginPassword.getText(), newPass = newPasswordField.getText(), secQuestion = choiceBox.getValue(), secAnswer = newSecurityAnswerField.getText();
+        User user = SQLUtils.getUser(name);
+        
+        if (isFormEmpty()) {
+            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
+            return false;
+        } else if (signup.getStyleClass().contains("active")) {
+            if (user != null) {
+                Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Already Exists", "Please enter information for a user that does not already exist.");
+                return false;
+            } else return Utils.regexValidation(pass);
+        } else if (login.getStyleClass().contains("active")) {
+            if (user == null) {
+                Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Does Not Exist", "Please enter valid information for a user that does already exists.");
+                return false;
+            } else if (user.getSecurityAnswer() != null && !user.getSecurityAnswer().equals(secAnswer)) {
+                Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Passwords Must Match", "Password And Confirm Password Must Match");
+                return false;
+            }
+        } else return Utils.regexValidation(newPass);
+        
+        return true;
+    }
+    
+    private boolean isFormEmpty() {
+        if (username.getText().isEmpty())
+            return false;
+        else if (signup.getStyleClass().contains("active") &&
+                (choiceBox.getValue().isEmpty() ||
+                        newSecurityAnswerField.getText().isEmpty() ||
+                        signupPassword.getText().isEmpty()))
+            return false;
+        else if (login.getStyleClass().contains("active") &&
+                loginPassword.getText().isEmpty())
+            return false;
+        else return !securityAnswerField.getText().isEmpty() && !newPasswordField.getText().isEmpty();
+    }
+    // endregion
     
     // region Window Settings
     @FXML
