@@ -12,12 +12,15 @@
     -fx-text-fill: grey;
 }
 
-.close, .min, .notActive {
+.close, .min, .notActive, .max {
     -fx-background-color: whitesmoke;
     -fx-text-fill: black;
 }
 .close:hover {
     -fx-background-color: red;
+}
+.max:hover {
+    -fx-background-color: blue;
 }
 .min:hover {
     -fx-background-color: #4a4a4a;

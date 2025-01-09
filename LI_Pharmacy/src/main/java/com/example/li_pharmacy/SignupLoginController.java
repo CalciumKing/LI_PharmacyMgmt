@@ -4,9 +4,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.transform.Scale;
+import javafx.stage.Screen;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -36,6 +42,8 @@ public class SignupLoginController implements Initializable {
     private TextField username, securityAnswerField, newPasswordField, newSecurityAnswerField;
     @FXML
     private PasswordField loginPassword, signupPassword;
+    private double initWidth, initHeight, defaultwidth, defaultHeight;
+    private boolean alreadyMaximized = false;
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -99,7 +107,7 @@ public class SignupLoginController implements Initializable {
     private void forgotPassword() {
         loginPane.setVisible(false);
         forgotPasswordPane.setVisible(true);
-        pageStatus = 3;
+        pageStatus = 2;
         
         formText.setText("Forgot Password Form:");
         
@@ -113,12 +121,10 @@ public class SignupLoginController implements Initializable {
     @FXML
     private void checkValidUser() {
         String name = username.getText();
-        if (pageStatus == 3 && SQLUtils.getUser(name) != null) {
-            String[] securityInfo = SQLUtils.getSecurityInfo(name);
-            if (securityInfo == null) return;
-            
-            securityQuestion = securityInfo[0];
-            securityAnswer = securityInfo[1];
+        User user = SQLUtils.getUser(name);
+        if (pageStatus == 2 && user != null) {
+            securityQuestion = user.getSecurityQuestion();
+            securityAnswer = user.getSecurityAnswer();
             securityQuestionLabel.setText(securityQuestion);
             
             securityQuestionPane.setVisible(true);
@@ -130,9 +136,6 @@ public class SignupLoginController implements Initializable {
     
     @FXML
     private void resetPassword() {
-        System.out.println(securityAnswerField.getText());
-        System.out.println(securityAnswer);
-        System.out.println();
         if (!securityAnswerField.getText().equals(securityAnswer)) {
             Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Non-Matching Fields", "The Security Question Field Does Not Match The Security Questions Answer.");
             return;
@@ -245,6 +248,25 @@ public class SignupLoginController implements Initializable {
     @FXML
     private void windowDrag(MouseEvent event) {
         Utils.windowDrag(event, page);
+    }
+    
+    @FXML
+    private void windowMaximize() {
+        if(!alreadyMaximized) {
+            Scene scene = page.getScene();
+            initWidth = scene.getWidth();
+            initHeight = scene.getHeight();
+
+            defaultwidth = (defaultwidth == 0) ? scene.getWidth() : defaultwidth;
+            defaultHeight = (defaultHeight == 0) ? scene.getHeight() : defaultHeight;
+
+            Utils.windowMaximize(page, initWidth, initHeight);
+
+            alreadyMaximized = true;
+        } else {
+            Utils.windowNormalize(page, defaultwidth, defaultHeight);
+            alreadyMaximized = false;
+        }
     }
     // endregion
 }

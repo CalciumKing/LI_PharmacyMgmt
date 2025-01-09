@@ -20,7 +20,6 @@ public class DashboardController implements Initializable {
     // region Variables
     @FXML
     private TextField id_field, brand_field, product_field, price_field;
-    
     @FXML
     private AnchorPane dashboard, databasePage, scannerPage, userPage, welcomePage;
     
@@ -42,11 +41,10 @@ public class DashboardController implements Initializable {
     @FXML
     private Label welcomeText;
     String username = "";
-    
     @FXML
     private ChoiceBox<String> typeBox, statusBox;
-    private final String[] types = new String[] {"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"};
-    private final String[] statuses = new String[] {"Available", "Not Available"};
+    private final String[] types = new String[]{"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"};
+    private final String[] statuses = new String[]{"Available", "Not Available"};
     @FXML
     private TableView<Medicine> medicine_table;
     @FXML
@@ -75,14 +73,13 @@ public class DashboardController implements Initializable {
         for (String type : types)
             typeBox.getItems().add(type);
 //        typeBox.setOnAction((event -> securityQuestion = typeBox.getSelectionModel().getSelectedItem()));
-        typeBox.setValue("Choose Medicine Type");
+        typeBox.setValue("Type");
         
         for (String status : statuses)
             statusBox.getItems().add(status);
 //        statusBox.setOnAction((event -> securityQuestion = statusBox.getSelectionModel().getSelectedItem()));
-        statusBox.setValue("Choose Medicine Status");
+        statusBox.setValue("Status");
     }
-    
     // endregion
     
     // region Side NavBar
@@ -186,7 +183,7 @@ public class DashboardController implements Initializable {
     }
     
     @FXML
-    void clearMedicineForm() {
+    private void clearMedicineForm() {
         id_field.clear();
         brand_field.clear();
         product_field.clear();
@@ -211,36 +208,36 @@ public class DashboardController implements Initializable {
     // endregion
     
     @FXML
-    void addUser(ActionEvent event) {
+    private void addUser(ActionEvent event) {
     
     }
     @FXML
-    void clearScannerForm(ActionEvent event) {
-    
-    }
-    
-    @FXML
-    void clearUsersForm(ActionEvent event) {
+    private void clearScannerForm(ActionEvent event) {
     
     }
     
     @FXML
-    void deleteUser(ActionEvent event) {
+    private void clearUsersForm(ActionEvent event) {
     
     }
     
     @FXML
-    void finalizeScannerForm(ActionEvent event) {
+    private void deleteUser(ActionEvent event) {
     
     }
     
     @FXML
-    void loadItem(KeyEvent event) {
+    private void finalizeScannerForm(ActionEvent event) {
     
     }
     
     @FXML
-    void loadUser(KeyEvent event) {
+    private void loadItem(KeyEvent event) {
+    
+    }
+    
+    @FXML
+    private void loadUser(KeyEvent event) {
     
     }
     
@@ -251,22 +248,22 @@ public class DashboardController implements Initializable {
     }
     
     @FXML
-    void selectedScanner(MouseEvent event) {
+    private void selectedScanner(MouseEvent event) {
     
     }
     
     @FXML
-    void selectedUser(MouseEvent event) {
+    private void selectedUser(MouseEvent event) {
     
     }
     
     @FXML
-    void submitScanner(ActionEvent event) {
+    private void submitScanner(ActionEvent event) {
     
     }
     
     @FXML
-    void updateUser(ActionEvent event) {
+    private void updateUser(ActionEvent event) {
     
     }
     

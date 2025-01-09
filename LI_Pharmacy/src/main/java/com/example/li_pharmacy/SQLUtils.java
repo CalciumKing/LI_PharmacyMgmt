@@ -17,8 +17,6 @@ public class SQLUtils {
         return runFormSQL(sql, username, password, null, null, true);
     }
     
-    
-    
     // region Table
     public static ObservableList<Medicine> refreshTable() {
         Connection connection = connectDB();
@@ -41,8 +39,7 @@ public class SQLUtils {
                         result.getDate("date")));
             return data;
             
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Refreshing Table", "There was an error running the SQL information to refresh the table.");
             return null;
         }
@@ -72,7 +69,7 @@ public class SQLUtils {
         Connection connection = connectDB();
         if (connection == null) return;
         
-        String sql = "update medicine set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ? where id = ?;";
+        String sql = "update medicine set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ? where medicineID = ?;";
         
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, id);
@@ -93,7 +90,7 @@ public class SQLUtils {
         Connection connection = connectDB();
         if (connection == null) return;
         
-        String sql = "delete from medicine where id = ?;";
+        String sql = "delete from medicine where medicineID = ?;";
         
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, id);
@@ -102,7 +99,6 @@ public class SQLUtils {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error in deleteItem", "There was an error deleting information from the table.");
         }
     }
-    
     // endregion
     
     // region Utils
@@ -130,9 +126,9 @@ public class SQLUtils {
             } else {
                 prepared.executeUpdate();
                 sql = "select * from users where username = ? and password = ? limit 1;";
-                return runFormSQL(sql, username, password, securityAnswer, null, true); // gets the user from the database after creating it, only does recursion once
+                return runFormSQL(sql, username, password, null, null, true); // gets the user from the database after creating it, only does recursion once
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error in runFormSQL", "Error Running SQL", "There was an error running the SQL information, or that user doesn't exist.");
         }
         return null;
@@ -161,53 +157,53 @@ public class SQLUtils {
         return null;
     }
     
-    public static Medicine getMedicine(String id) {
-        Connection connection = connectDB();
-        if (connection == null) return null;
-        
-        String sql = "select * from medicine where id = ? limit 1;";
-        
-        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
-            prepared.setString(1, id);
-            ResultSet result = prepared.executeQuery();
-            if (result.next())
-                // starts at 2 because of unneeded auto increment id in first column
-                return new Medicine(
-                        result.getString(2),
-                        result.getString(3),
-                        result.getString(4),
-                        result.getString(5),
-                        result.getString(6),
-                        result.getDouble(7),
-                        result.getDate(8)
-                );
-        } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Get Item Error", "Error Getting Item From Database", "There was an error getting an item from the database, please try again.");
-        }
-        return null;
-    }
+//    public static Medicine getMedicine(String id) {
+//        Connection connection = connectDB();
+//        if (connection == null) return null;
+//
+//        String sql = "select * from medicine where id = ? limit 1;";
+//
+//        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
+//            prepared.setString(1, id);
+//            ResultSet result = prepared.executeQuery();
+//            if (result.next())
+//                // starts at 2 because of unneeded auto increment id in first column
+//                return new Medicine(
+//                        result.getString(2),
+//                        result.getString(3),
+//                        result.getString(4),
+//                        result.getString(5),
+//                        result.getString(6),
+//                        result.getDouble(7),
+//                        result.getDate(8)
+//                );
+//        } catch (Exception ignored) {
+//            Utils.errorAlert(Alert.AlertType.ERROR, "Get Item Error", "Error Getting Item From Database", "There was an error getting an item from the database, please try again.");
+//        }
+//        return null;
+//    }
     
-    public static String[] getSecurityInfo(String username) {
-        Connection connection = connectDB();
-        if (connection == null) return null;
-        
-        String sql = "select secQuestion, secAnswer from users where username = ? limit 1;";
-        
-        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
-            prepared.setString(1, username);
-            ResultSet result = prepared.executeQuery();
-            
-            if (result.next())
-                return new String[] {
-                        result.getString(1),
-                        result.getString(2)
-                };
-        } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getUser", "Error Getting User From Database", "There was an error getting a user from the database, please try again.");
-        }
-        
-        return null;
-    }
+//    public static String[] getSecurityInfo(String username) {
+//        Connection connection = connectDB();
+//        if (connection == null) return null;
+//
+//        String sql = "select secQuestion, secAnswer from users where username = ? limit 1;";
+//
+//        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
+//            prepared.setString(1, username);
+//            ResultSet result = prepared.executeQuery();
+//
+//            if (result.next())
+//                return new String[] {
+//                        result.getString(1),
+//                        result.getString(2)
+//                };
+//        } catch (Exception ignored) {
+//            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getUser", "Error Getting User From Database", "There was an error getting a user from the database, please try again.");
+//        }
+//
+//        return null;
+//    }
     
     public static void setPassword(String username, String password) {
         Connection connection = connectDB();

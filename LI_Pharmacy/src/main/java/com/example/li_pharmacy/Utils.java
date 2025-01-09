@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -19,8 +20,8 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Utils {
-    private static double xOffset;
-    private static double yOffset;
+    private static double xOffset = 0;
+    private static double yOffset = 0;
     
     // region Alert Methods
     public static void errorAlert(Alert.AlertType type, String title, String headerText, String contentText) {
@@ -101,14 +102,76 @@ public class Utils {
     }
     
     public static void windowClick(MouseEvent event) {
-        xOffset = event.getScreenX();
-        yOffset = event.getScreenY();
+        xOffset = event.getSceneX();
+        yOffset = event.getSceneY();
     }
     
     public static void windowDrag(MouseEvent event, AnchorPane pane) {
         Stage stage = (Stage) pane.getScene().getWindow();
         stage.setX(event.getScreenX() - xOffset);
         stage.setY(event.getScreenY() - yOffset);
+    }
+    
+    public static void windowMaximize(AnchorPane pane, double initWidth, double initHeight) {
+//        Screen screen = Screen.getPrimary();
+//        Rectangle2D bounds = screen.getVisualBounds();
+        
+        Stage stage = (Stage) pane.getScene().getWindow();
+        Scene scene = stage.getScene();
+        
+        stage.setMaximized(true);
+        
+        double ratio = initWidth / initHeight;
+        
+        double newWidth  = scene.getWidth();
+        double newHeight = scene.getHeight();
+        
+        double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / initHeight : newWidth / initWidth;
+        
+        if (scaleFactor >= 1) {
+            Scale scale = new Scale(scaleFactor, scaleFactor);
+            scale.setPivotX(0);
+            scale.setPivotY(0);
+            scene.getRoot().getTransforms().setAll(scale);
+            
+            pane.setPrefWidth(newWidth  / scaleFactor);
+            pane.setPrefHeight(newHeight / scaleFactor);
+        } else {
+            pane.setPrefWidth(Math.max(initWidth,  newWidth));
+            pane.setPrefHeight(Math.max(initHeight, newHeight));
+        }
+
+//        primaryStage.setX(bounds.getMinX());
+//        primaryStage.setY(bounds.getMinY());
+//        primaryStage.setWidth(bounds.getWidth());
+//        primaryStage.setHeight(bounds.getHeight());
+    }
+    
+    public static void windowNormalize(AnchorPane pane, double defaultWidth, double defaultHeight) {
+        Stage stage = (Stage) pane.getScene().getWindow();
+        Scene scene = stage.getScene();
+        
+        stage.setMaximized(false);
+        
+        double ratio = defaultWidth / defaultHeight;
+        
+        double newWidth  = scene.getWidth();
+        double newHeight = scene.getHeight();
+        
+        double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / defaultHeight : newWidth / defaultWidth;
+        
+        if (scaleFactor >= 1) {
+            Scale scale = new Scale(scaleFactor, scaleFactor);
+            scale.setPivotX(0);
+            scale.setPivotY(0);
+            scene.getRoot().getTransforms().setAll(scale);
+            
+            pane.setPrefWidth(newWidth  / scaleFactor);
+            pane.setPrefHeight(newHeight / scaleFactor);
+        } else {
+            pane.setPrefWidth(Math.max(defaultWidth,  newWidth));
+            pane.setPrefHeight(Math.max(defaultHeight, newHeight));
+        }
     }
     // endregion
 }
