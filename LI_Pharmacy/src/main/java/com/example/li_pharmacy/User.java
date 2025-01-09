@@ -1,4 +1,5 @@
 package com.example.li_pharmacy;
+
 public class User {
     private String username, password, securityQuestion, securityAnswer;
     

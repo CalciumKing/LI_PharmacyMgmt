@@ -260,11 +260,11 @@ public class SignupLoginController implements Initializable {
             defaultwidth = (defaultwidth == 0) ? scene.getWidth() : defaultwidth;
             defaultHeight = (defaultHeight == 0) ? scene.getHeight() : defaultHeight;
 
-            Utils.windowMaximize(page, initWidth, initHeight);
+            Utils.windowMaximize(page, initWidth, initHeight, false);
 
             alreadyMaximized = true;
         } else {
-            Utils.windowNormalize(page, defaultwidth, defaultHeight);
+            Utils.windowMaximize(page, defaultwidth, defaultHeight, true);
             alreadyMaximized = false;
         }
     }

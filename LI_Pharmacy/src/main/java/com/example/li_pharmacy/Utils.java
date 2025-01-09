@@ -90,6 +90,16 @@ public class Utils {
         
         return true;
     }
+    
+    public static void createImage(String path, ImageView imageView) {
+        String uri = (path != null) ? "file:" + path : "file:" + "bin\\Images\\NoImage.jpg";
+        Image image = new Image(uri, 125, 165, true, true);
+        
+        if (image.isError())
+            System.out.println("Error loading image: " + image.getException().getMessage());
+        else
+            imageView.setImage(image);
+    }
     // endregion
     
     // region Window Settings
@@ -112,21 +122,18 @@ public class Utils {
         stage.setY(event.getScreenY() - yOffset);
     }
     
-    public static void windowMaximize(AnchorPane pane, double initWidth, double initHeight) {
-//        Screen screen = Screen.getPrimary();
-//        Rectangle2D bounds = screen.getVisualBounds();
-        
+    public static void windowMaximize(AnchorPane pane, double width, double height, boolean alreadyMaximized) {
         Stage stage = (Stage) pane.getScene().getWindow();
         Scene scene = stage.getScene();
         
-        stage.setMaximized(true);
+        stage.setMaximized(!alreadyMaximized);
         
-        double ratio = initWidth / initHeight;
+        double ratio = width / height;
         
         double newWidth  = scene.getWidth();
         double newHeight = scene.getHeight();
         
-        double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / initHeight : newWidth / initWidth;
+        double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / height : newWidth / width;
         
         if (scaleFactor >= 1) {
             Scale scale = new Scale(scaleFactor, scaleFactor);
@@ -134,43 +141,11 @@ public class Utils {
             scale.setPivotY(0);
             scene.getRoot().getTransforms().setAll(scale);
             
-            pane.setPrefWidth(newWidth  / scaleFactor);
+            pane.setPrefWidth(newWidth / scaleFactor);
             pane.setPrefHeight(newHeight / scaleFactor);
         } else {
-            pane.setPrefWidth(Math.max(initWidth,  newWidth));
-            pane.setPrefHeight(Math.max(initHeight, newHeight));
-        }
-
-//        primaryStage.setX(bounds.getMinX());
-//        primaryStage.setY(bounds.getMinY());
-//        primaryStage.setWidth(bounds.getWidth());
-//        primaryStage.setHeight(bounds.getHeight());
-    }
-    
-    public static void windowNormalize(AnchorPane pane, double defaultWidth, double defaultHeight) {
-        Stage stage = (Stage) pane.getScene().getWindow();
-        Scene scene = stage.getScene();
-        
-        stage.setMaximized(false);
-        
-        double ratio = defaultWidth / defaultHeight;
-        
-        double newWidth  = scene.getWidth();
-        double newHeight = scene.getHeight();
-        
-        double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / defaultHeight : newWidth / defaultWidth;
-        
-        if (scaleFactor >= 1) {
-            Scale scale = new Scale(scaleFactor, scaleFactor);
-            scale.setPivotX(0);
-            scale.setPivotY(0);
-            scene.getRoot().getTransforms().setAll(scale);
-            
-            pane.setPrefWidth(newWidth  / scaleFactor);
-            pane.setPrefHeight(newHeight / scaleFactor);
-        } else {
-            pane.setPrefWidth(Math.max(defaultWidth,  newWidth));
-            pane.setPrefHeight(Math.max(defaultHeight, newHeight));
+            pane.setPrefWidth(Math.max(width,  newWidth));
+            pane.setPrefHeight(Math.max(height, newHeight));
         }
     }
     // endregion

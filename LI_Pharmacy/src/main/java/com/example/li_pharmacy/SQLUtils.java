@@ -28,28 +28,18 @@ public class SQLUtils {
             ResultSet result = prepared.executeQuery();
             ObservableList<Medicine> data = FXCollections.observableArrayList();
             
-            while (result.next())
-                data.add(new Medicine(
-                        result.getString("medicineID"),
-                        result.getString("brand"),
-                        result.getString("productName"),
-                        result.getString("type"),
-                        result.getString("status"),
-                        result.getDouble("price"),
-                        result.getDate("date")));
-            return data;
-            
+            return getMedicineData(result, data);
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Refreshing Table", "There was an error running the SQL information to refresh the table.");
             return null;
         }
     }
     
-    public static void addItem(String id, String brand, String productName, double price, String type, String status, Date date) {
+    public static void addItem(String id, String brand, String productName, double price, String type, String status, Date date, String imagePath) {
         Connection connection = connectDB();
         if (connection == null) return;
         
-        String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date) values (?, ?, ?, ?, ?, ?, ?);";
+        String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date, imagePath) values (?, ?, ?, ?, ?, ?, ?, ?);";
         
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, id);
@@ -59,17 +49,19 @@ public class SQLUtils {
             prepared.setString(5, type);
             prepared.setString(6, status);
             prepared.setDate(7, date);
+            prepared.setString(8, imagePath);
             prepared.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error In addItem", "There was an error running the SQL information to add to the table.");
+            e.printStackTrace();
         }
     }
     
-    public static void updateItem(String id, String brand, String productName, String type, String status, double price, Date date) {
+    public static void updateItem(String id, String brand, String productName, String type, String status, double price, Date date, String imagePath) {
         Connection connection = connectDB();
         if (connection == null) return;
         
-        String sql = "update medicine set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ? where medicineID = ?;";
+        String sql = "update medicine set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ?, imagePath = ? where medicineID = ?;";
         
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, id);
@@ -79,7 +71,8 @@ public class SQLUtils {
             prepared.setString(5, status);
             prepared.setDouble(6, price);
             prepared.setDate(7, date);
-            prepared.setString(8, id);
+            prepared.setString(8, imagePath);
+            prepared.setString(9, id);
             prepared.executeUpdate();
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error In updateItem", "There was an error running the SQL information to update the table.");
@@ -97,6 +90,26 @@ public class SQLUtils {
             prepared.executeUpdate();
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error in deleteItem", "There was an error deleting information from the table.");
+        }
+    }
+    
+    public static ObservableList<Medicine> searchTable(String searchString) {
+        Connection connection = connectDB();
+        if (connection == null) return null;
+        
+        String sql = "select * from medicine where medicineID like ? or brand like ? or productName like ? or type like ? or status like ?;";
+        
+        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
+            for (int i = 1; i <= 4; i++)
+                prepared.setString(i, "%" + searchString + "%");
+            prepared.setString(5, searchString + "%");
+            ResultSet result = prepared.executeQuery();
+            ObservableList<Medicine> data = FXCollections.observableArrayList();
+            
+            return getMedicineData(result, data);
+        } catch (Exception ignored) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Searching Table", "There was an error running the SQL information to refresh the table.");
+            return null;
         }
     }
     // endregion
@@ -157,54 +170,6 @@ public class SQLUtils {
         return null;
     }
     
-//    public static Medicine getMedicine(String id) {
-//        Connection connection = connectDB();
-//        if (connection == null) return null;
-//
-//        String sql = "select * from medicine where id = ? limit 1;";
-//
-//        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
-//            prepared.setString(1, id);
-//            ResultSet result = prepared.executeQuery();
-//            if (result.next())
-//                // starts at 2 because of unneeded auto increment id in first column
-//                return new Medicine(
-//                        result.getString(2),
-//                        result.getString(3),
-//                        result.getString(4),
-//                        result.getString(5),
-//                        result.getString(6),
-//                        result.getDouble(7),
-//                        result.getDate(8)
-//                );
-//        } catch (Exception ignored) {
-//            Utils.errorAlert(Alert.AlertType.ERROR, "Get Item Error", "Error Getting Item From Database", "There was an error getting an item from the database, please try again.");
-//        }
-//        return null;
-//    }
-    
-//    public static String[] getSecurityInfo(String username) {
-//        Connection connection = connectDB();
-//        if (connection == null) return null;
-//
-//        String sql = "select secQuestion, secAnswer from users where username = ? limit 1;";
-//
-//        try (PreparedStatement prepared = connection.prepareStatement(sql)) {
-//            prepared.setString(1, username);
-//            ResultSet result = prepared.executeQuery();
-//
-//            if (result.next())
-//                return new String[] {
-//                        result.getString(1),
-//                        result.getString(2)
-//                };
-//        } catch (Exception ignored) {
-//            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getUser", "Error Getting User From Database", "There was an error getting a user from the database, please try again.");
-//        }
-//
-//        return null;
-//    }
-    
     public static void setPassword(String username, String password) {
         Connection connection = connectDB();
         if (connection == null) return;
@@ -217,6 +182,25 @@ public class SQLUtils {
             prepared.executeUpdate();
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error In setPassword", "Error setting a new password", "There was an error setting a new password for this user, please try again.");
+        }
+    }
+    
+    private static ObservableList<Medicine> getMedicineData(ResultSet result, ObservableList<Medicine> data) {
+        try {
+            while (result.next())
+                data.add(new Medicine(
+                        result.getString("medicineID"),
+                        result.getString("brand"),
+                        result.getString("productName"),
+                        result.getString("type"),
+                        result.getString("status"),
+                        result.getDouble("price"),
+                        result.getDate("date"),
+                        result.getString("imagePath")));
+            return data;
+        } catch (Exception ignored) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Medicine Data Error", "Error Compiling Medicine Data", "Database could not be connected to, please try again.");
+            return null;
         }
     }
     

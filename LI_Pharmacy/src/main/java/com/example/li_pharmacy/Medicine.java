@@ -1,13 +1,14 @@
 package com.example.li_pharmacy;
+
 import java.util.Date;
 
 public class Medicine {
-    private String id, brand, productName, type, status;
+    private String id, brand, productName, type, status, imagePath;
     private double price;
     private Date date;
     
-    public Medicine(String id, String brand, String productName,
-                    String type, String status, double price, Date date) {
+    public Medicine(String id, String brand, String productName, String type,
+                    String status, double price, Date date, String imagePath) {
         this.id = id;
         this.brand = brand;
         this.productName = productName;
@@ -15,6 +16,7 @@ public class Medicine {
         this.status = status;
         this.price = price;
         this.date = date;
+        this.imagePath = imagePath;
     }
     
     // region Getters and Setters
@@ -59,6 +61,12 @@ public class Medicine {
     }
     public void setDate(Date date) {
         this.date = date;
+    }
+    public String getImagePath() {
+        return imagePath;
+    }
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
     // endregion
 }

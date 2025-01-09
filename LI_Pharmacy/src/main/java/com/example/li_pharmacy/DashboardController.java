@@ -4,14 +4,20 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -19,12 +25,14 @@ import java.util.ResourceBundle;
 public class DashboardController implements Initializable {
     // region Variables
     @FXML
-    private TextField id_field, brand_field, product_field, price_field;
+    private TextField id_field, brand_field, product_field, price_field, searchBar;
+    
     @FXML
     private AnchorPane dashboard, databasePage, scannerPage, userPage, welcomePage;
     
     @FXML
-    private ImageView item_img;
+    private ImageView medicine_img;
+    private String imagePath = "";
     
     @FXML
     private TextField scanner_id_field;
@@ -41,10 +49,12 @@ public class DashboardController implements Initializable {
     @FXML
     private Label welcomeText;
     String username = "";
+    
     @FXML
     private ChoiceBox<String> typeBox, statusBox;
     private final String[] types = new String[]{"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"};
     private final String[] statuses = new String[]{"Available", "Not Available"};
+    
     @FXML
     private TableView<Medicine> medicine_table;
     @FXML
@@ -55,6 +65,10 @@ public class DashboardController implements Initializable {
     private TableColumn<Medicine, Date> date_col;
     @FXML
     ObservableList<Medicine> items;
+    
+    private double defaultWidth;
+    private double defaultHeight;
+    private boolean alreadyMaximized = false;
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -72,12 +86,10 @@ public class DashboardController implements Initializable {
         
         for (String type : types)
             typeBox.getItems().add(type);
-//        typeBox.setOnAction((event -> securityQuestion = typeBox.getSelectionModel().getSelectedItem()));
         typeBox.setValue("Type");
         
         for (String status : statuses)
             statusBox.getItems().add(status);
-//        statusBox.setOnAction((event -> securityQuestion = statusBox.getSelectionModel().getSelectedItem()));
         statusBox.setValue("Status");
     }
     // endregion
@@ -114,12 +126,20 @@ public class DashboardController implements Initializable {
         scannerPage.setVisible(false);
         userPage.setVisible(true);
     }
+    
+    @FXML
+    private void logOut() {
+        Utils.changeScene("signup-login.fxml", null);
+        welcomeText.getScene().getWindow().hide();
+    }
     // endregion
     
+    // region Dashboard Page (First Page)
     public void welcomeName(User user) {
         username = user.getUsername();
         welcomeText.setText("Welcome, " + username);
     }
+    // endregion
     
     // region Medicine Table (Second Page)
     @FXML
@@ -133,7 +153,8 @@ public class DashboardController implements Initializable {
         String type = typeBox.getValue();
         String status = statusBox.getValue();
         
-        SQLUtils.addItem(id, brand, product, price, type, status, null);
+        java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
+        SQLUtils.addItem(id, brand, product, price, type, status, sqlDate, imagePath);
         
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
@@ -151,7 +172,8 @@ public class DashboardController implements Initializable {
         String type = typeBox.getValue();
         String status = statusBox.getValue();
         
-        SQLUtils.updateItem(id, brand, product, type, status, price, null);
+        java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
+        SQLUtils.updateItem(id, brand, product, type, status, price, sqlDate, imagePath);
         
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
@@ -160,7 +182,7 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void deleteItem() {
-        if (medicineFormInvalid()) return;
+        if (id_field.getText().isEmpty()) return;
         
         Optional<ButtonType> optionSelected = Utils.confirmAlert(Alert.AlertType.CONFIRMATION, "Form Validation", "Delete This Item", "Confirming, would you like to delete this piece of data?");
         if (optionSelected.isPresent() && optionSelected.get().getText().equals("Yes")) {
@@ -175,7 +197,9 @@ public class DashboardController implements Initializable {
     private boolean medicineFormInvalid() {
         if (id_field.getText().isEmpty() || brand_field.getText().isEmpty() ||
                 product_field.getText().isEmpty() || price_field.getText().isEmpty() ||
-                typeBox.getValue().isEmpty() || statusBox.getValue().isEmpty()) {
+                typeBox.getValue().isEmpty() || statusBox.getValue().isEmpty() ||
+                typeBox.getValue().equals("Type") || statusBox.getValue().equals("Status") ||
+                imagePath.isEmpty()) {
             Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
             return true;
         }
@@ -188,9 +212,16 @@ public class DashboardController implements Initializable {
         brand_field.clear();
         product_field.clear();
         price_field.clear();
+        searchBar.clear();
         
-        typeBox.setValue("Choose Medicine Type");
-        statusBox.setValue("Choose Medicine Status");
+        typeBox.setValue("Type");
+        statusBox.setValue("Status");
+        
+        imagePath = "";
+        Utils.createImage("bin\\Images\\defaultImage.jpg", medicine_img);
+        
+        items = SQLUtils.refreshTable();
+        medicine_table.setItems(items);
     }
     
     @FXML
@@ -204,6 +235,85 @@ public class DashboardController implements Initializable {
         price_field.setText(String.valueOf(item.getPrice()));
         typeBox.setValue(item.getType());
         statusBox.setValue(item.getStatus());
+        imagePath = item.getImagePath();
+        
+        Utils.createImage(item.getImagePath(), medicine_img);
+    }
+    
+    @FXML
+    private void chooseImage() {
+        try {
+            FileChooser open = new FileChooser();
+            open.setTitle("Open Image File");
+            open.getExtensionFilters().add(new FileChooser.ExtensionFilter(
+                    "Image File", "*.jpg", "*.jpeg", "*.png"));
+            File saveFolder = new File("bin\\Images");
+            open.setInitialDirectory(saveFolder);
+            
+            File file = open.showOpenDialog(medicine_img.getScene().getWindow());
+            
+            if (file != null) {
+                if (!saveFolder.exists() && !saveFolder.mkdirs())
+                    return;
+                
+                File saveFile = new File(saveFolder, file.getName());
+                Files.copy(file.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                
+                Image image = new Image(file.toURI().toString(), 125, 165, false, true);
+                medicine_img.setImage(image);
+                imagePath = saveFile.getPath();
+            }
+        } catch (Exception ignored) {
+            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
+        }
+    }
+    
+    @FXML
+    private void searchMedicine() {
+        String searchText = searchBar.getText();
+        items = (searchText.isEmpty()) ? SQLUtils.refreshTable(): SQLUtils.searchTable(searchText);
+        medicine_table.setItems(items);
+    }
+    // endregion
+    
+    // region Window Settings
+    @FXML
+    private void windowMinimize(ActionEvent event) {
+        Utils.windowMinimize(event);
+    }
+    
+    @FXML
+    private void windowClose() {
+        Utils.windowClose();
+    }
+    
+    @FXML
+    private void windowClick(MouseEvent event) {
+        Utils.windowClick(event);
+    }
+    
+    @FXML
+    private void windowDrag(MouseEvent event) {
+        Utils.windowDrag(event, dashboard);
+    }
+    
+    @FXML
+    private void windowMaximize() {
+        if(!alreadyMaximized) {
+            Scene scene = dashboard.getScene();
+            double initWidth = scene.getWidth();
+            double initHeight = scene.getHeight();
+            
+            defaultWidth = (defaultWidth == 0) ? scene.getWidth() : defaultWidth;
+            defaultHeight = (defaultHeight == 0) ? scene.getHeight() : defaultHeight;
+            
+            Utils.windowMaximize(dashboard, initWidth, initHeight, false);
+            
+            alreadyMaximized = true;
+        } else {
+            Utils.windowMaximize(dashboard, defaultWidth, defaultHeight, true);
+            alreadyMaximized = false;
+        }
     }
     // endregion
     
@@ -211,6 +321,7 @@ public class DashboardController implements Initializable {
     private void addUser(ActionEvent event) {
     
     }
+    
     @FXML
     private void clearScannerForm(ActionEvent event) {
     
@@ -233,18 +344,11 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void loadItem(KeyEvent event) {
-    
     }
     
     @FXML
     private void loadUser(KeyEvent event) {
     
-    }
-    
-    @FXML
-    private void logOut() {
-        Utils.changeScene("signup-login.fxml", null);
-        welcomeText.getScene().getWindow().hide();
     }
     
     @FXML
@@ -266,26 +370,4 @@ public class DashboardController implements Initializable {
     private void updateUser(ActionEvent event) {
     
     }
-    
-    // region Window Settings
-    @FXML
-    private void windowMinimize(ActionEvent event) {
-        Utils.windowMinimize(event);
-    }
-    
-    @FXML
-    private void windowClose() {
-        Utils.windowClose();
-    }
-    
-    @FXML
-    private void windowClick(MouseEvent event) {
-        Utils.windowClick(event);
-    }
-    
-    @FXML
-    private void windowDrag(MouseEvent event) {
-        Utils.windowDrag(event, dashboard);
-    }
-    // endregion
 }
