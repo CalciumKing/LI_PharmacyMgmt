@@ -39,3 +39,24 @@
     -fx-border-radius: 8px;
     -fx-label-padding: 2px;
 }
+
+.table-view {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header, .filter {
+    -fx-background-color: transparent;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: linear-gradient(to top, maroon, red);
+    -fx-text-fill: whitesmoke;
+}
+
+.table-view .cell:odd {
+    -fx-background-color: red;
+}
+
+.table-view .cell:even {
+    -fx-background-color: salmon;
+}

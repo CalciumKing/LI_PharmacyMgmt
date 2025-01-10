@@ -4,15 +4,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.transform.Scale;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -42,7 +37,7 @@ public class SignupLoginController implements Initializable {
     private TextField username, securityAnswerField, newPasswordField, newSecurityAnswerField;
     @FXML
     private PasswordField loginPassword, signupPassword;
-    private double initWidth, initHeight, defaultwidth, defaultHeight;
+    private double defaultWidth, defaultHeight;
     private boolean alreadyMaximized = false;
     
     @Override
@@ -156,8 +151,6 @@ public class SignupLoginController implements Initializable {
         }
     }
     
-    // endregion
-    
     @FXML
     private void login() {
         User user = SQLUtils.login(username.getText(), loginPassword.getText());
@@ -182,6 +175,7 @@ public class SignupLoginController implements Initializable {
             page.getScene().getWindow().hide();
         }
     }
+    // endregion
     
     // region Form Validation
     private boolean validForm() {
@@ -252,21 +246,19 @@ public class SignupLoginController implements Initializable {
     
     @FXML
     private void windowMaximize() {
-        if(!alreadyMaximized) {
+        if (!alreadyMaximized) {
             Scene scene = page.getScene();
-            initWidth = scene.getWidth();
-            initHeight = scene.getHeight();
-
-            defaultwidth = (defaultwidth == 0) ? scene.getWidth() : defaultwidth;
+            double initWidth = scene.getWidth();
+            double initHeight = scene.getHeight();
+            
+            defaultWidth = (defaultWidth == 0) ? scene.getWidth() : defaultWidth;
             defaultHeight = (defaultHeight == 0) ? scene.getHeight() : defaultHeight;
-
+            
             Utils.windowMaximize(page, initWidth, initHeight, false);
-
-            alreadyMaximized = true;
-        } else {
-            Utils.windowMaximize(page, defaultwidth, defaultHeight, true);
-            alreadyMaximized = false;
-        }
+        } else
+            Utils.windowMaximize(page, defaultWidth, defaultHeight, true);
+        
+        alreadyMaximized = !alreadyMaximized;
     }
     // endregion
 }

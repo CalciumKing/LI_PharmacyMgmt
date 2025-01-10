@@ -35,7 +35,7 @@ public class DashboardController implements Initializable {
     private String imagePath = "";
     
     @FXML
-    private TextField scanner_id_field;
+    private TextField scanner_id_field, username_field, email_field, grade_field;
     
     @FXML
     private ImageView scanner_img;
@@ -149,7 +149,8 @@ public class DashboardController implements Initializable {
         String id = id_field.getText();
         String brand = brand_field.getText();
         String product = product_field.getText();
-        double price = Double.parseDouble(price_field.getText());
+        double price = safeParseDouble();
+        if (price == -1.0) return;
         String type = typeBox.getValue();
         String status = statusBox.getValue();
         
@@ -168,7 +169,8 @@ public class DashboardController implements Initializable {
         String id = id_field.getText();
         String brand = brand_field.getText();
         String product = product_field.getText();
-        double price = Double.parseDouble(price_field.getText());
+        double price = safeParseDouble();
+        if (price == -1.0) return;
         String type = typeBox.getValue();
         String status = statusBox.getValue();
         
@@ -178,6 +180,15 @@ public class DashboardController implements Initializable {
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
         clearMedicineForm();
+    }
+    
+    private double safeParseDouble() {
+        try {
+            return Double.parseDouble(price_field.getText());
+        } catch (NumberFormatException ignored) {
+            Utils.errorAlert(Alert.AlertType.ERROR, "Parse Double Error", "Error Parsing A double", "There was an error running the SQL information to refresh the table.");
+            return -1.0;
+        }
     }
     
     @FXML
@@ -271,7 +282,7 @@ public class DashboardController implements Initializable {
     @FXML
     private void searchMedicine() {
         String searchText = searchBar.getText();
-        items = (searchText.isEmpty()) ? SQLUtils.refreshTable(): SQLUtils.searchTable(searchText);
+        items = (searchText.isEmpty()) ? SQLUtils.refreshTable() : SQLUtils.searchTable(searchText);
         medicine_table.setItems(items);
     }
     // endregion
@@ -299,8 +310,9 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void windowMaximize() {
-        if(!alreadyMaximized) {
+        if (!alreadyMaximized) {
             Scene scene = dashboard.getScene();
+            
             double initWidth = scene.getWidth();
             double initHeight = scene.getHeight();
             
@@ -308,12 +320,10 @@ public class DashboardController implements Initializable {
             defaultHeight = (defaultHeight == 0) ? scene.getHeight() : defaultHeight;
             
             Utils.windowMaximize(dashboard, initWidth, initHeight, false);
-            
-            alreadyMaximized = true;
-        } else {
+        } else
             Utils.windowMaximize(dashboard, defaultWidth, defaultHeight, true);
-            alreadyMaximized = false;
-        }
+        
+        alreadyMaximized = !alreadyMaximized;
     }
     // endregion
     

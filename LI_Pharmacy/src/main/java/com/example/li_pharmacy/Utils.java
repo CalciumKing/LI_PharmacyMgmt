@@ -129,24 +129,19 @@ public class Utils {
         stage.setMaximized(!alreadyMaximized);
         
         double ratio = width / height;
-        
-        double newWidth  = scene.getWidth();
-        double newHeight = scene.getHeight();
-        
+        double newWidth = scene.getWidth(), newHeight = scene.getHeight();
         double scaleFactor = (newWidth / newHeight > ratio) ? newHeight / height : newWidth / width;
+        boolean condition = scaleFactor >= 1;
         
-        if (scaleFactor >= 1) {
+        if (condition) {
             Scale scale = new Scale(scaleFactor, scaleFactor);
             scale.setPivotX(0);
             scale.setPivotY(0);
             scene.getRoot().getTransforms().setAll(scale);
-            
-            pane.setPrefWidth(newWidth / scaleFactor);
-            pane.setPrefHeight(newHeight / scaleFactor);
-        } else {
-            pane.setPrefWidth(Math.max(width,  newWidth));
-            pane.setPrefHeight(Math.max(height, newHeight));
         }
+        
+        pane.setPrefWidth((condition) ? newWidth / scaleFactor : Math.max(width, newWidth));
+        pane.setPrefHeight((condition) ? newHeight / scaleFactor : Math.max(height, newHeight));
     }
     // endregion
 }

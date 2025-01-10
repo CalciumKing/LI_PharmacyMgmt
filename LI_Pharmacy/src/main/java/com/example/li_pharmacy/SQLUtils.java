@@ -51,9 +51,8 @@ public class SQLUtils {
             prepared.setDate(7, date);
             prepared.setString(8, imagePath);
             prepared.executeUpdate();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error In addItem", "There was an error running the SQL information to add to the table.");
-            e.printStackTrace();
         }
     }
     
@@ -122,7 +121,7 @@ public class SQLUtils {
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, username);
             prepared.setString(2, password);
-            if(securityQuestion != null)
+            if (securityQuestion != null)
                 prepared.setString(3, securityQuestion);
             if (securityAnswer != null)
                 prepared.setString(4, securityAnswer);
@@ -173,9 +172,9 @@ public class SQLUtils {
     public static void setPassword(String username, String password) {
         Connection connection = connectDB();
         if (connection == null) return;
-
+        
         String sql = "update users set password = ? where username = ?;";
-
+        
         try (PreparedStatement prepared = connection.prepareStatement(sql)) {
             prepared.setString(1, password);
             prepared.setString(2, username);
