@@ -3,6 +3,13 @@ package com.example.li_pharmacy;
 public class User {
     private String username, password, securityQuestion, securityAnswer;
     
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+        securityQuestion = null;
+        securityAnswer = null;
+    }
+    
     public User(String username, String password,
                 String securityQuestion, String securityAnswer) {
         this.username = username;

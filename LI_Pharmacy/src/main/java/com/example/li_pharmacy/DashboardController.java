@@ -18,42 +18,29 @@ import java.io.File;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Date;
+import java.sql.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class DashboardController implements Initializable {
+    
     // region Variables
     @FXML
-    private TextField id_field, brand_field, product_field, price_field, searchBar;
+    private TextField id_field, brand_field, product_field, price_field, searchBar, scanner_id_field, username_field, email_field, grade_field;
     
     @FXML
     private AnchorPane dashboard, databasePage, scannerPage, userPage, welcomePage;
     
     @FXML
-    private ImageView medicine_img;
+    private ImageView medicine_img, scanner_img, user_img;
     private String imagePath = "";
     
     @FXML
-    private TextField scanner_id_field, username_field, email_field, grade_field;
-    
-    @FXML
-    private ImageView scanner_img;
-    
-    @FXML
-    private ImageView user_img;
-    
-    @FXML
-    private Button users_page_btn;
-    
-    @FXML
     private Label welcomeText;
-    String username = "";
     
     @FXML
     private ChoiceBox<String> typeBox, statusBox;
-    private final String[] types = new String[]{"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"};
-    private final String[] statuses = new String[]{"Available", "Not Available"};
+    private final String[] types = new String[]{"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"}, statuses = new String[]{"Available", "Not Available"};
     
     @FXML
     private TableView<Medicine> medicine_table;
@@ -66,12 +53,20 @@ public class DashboardController implements Initializable {
     @FXML
     ObservableList<Medicine> items;
     
-    private double defaultWidth;
-    private double defaultHeight;
+    private double defaultWidth, defaultHeight;
     private boolean alreadyMaximized = false;
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        initCols();
+        initDropdowns();
+        
+        items = SQLUtils.refreshTable();
+        medicine_table.setItems(items);
+        clearMedicineForm();
+    }
+    
+    private void initCols() {
         id_col.setCellValueFactory(new PropertyValueFactory<>("id"));
         brand_col.setCellValueFactory(new PropertyValueFactory<>("brand"));
         product_col.setCellValueFactory(new PropertyValueFactory<>("productName"));
@@ -79,11 +74,9 @@ public class DashboardController implements Initializable {
         type_col.setCellValueFactory(new PropertyValueFactory<>("type"));
         status_col.setCellValueFactory(new PropertyValueFactory<>("status"));
         date_col.setCellValueFactory(new PropertyValueFactory<>("date"));
-        
-        items = SQLUtils.refreshTable();
-        medicine_table.setItems(items);
-        clearMedicineForm();
-        
+    }
+    
+    private void initDropdowns() {
         for (String type : types)
             typeBox.getItems().add(type);
         typeBox.setValue("Type");
@@ -95,36 +88,23 @@ public class DashboardController implements Initializable {
     // endregion
     
     // region Side NavBar
-    @FXML
-    private void welcomePage() {
-        welcomePage.setVisible(true);
+    private void showPage(AnchorPane pageToShow) {
+        welcomePage.setVisible(false);
         databasePage.setVisible(false);
         scannerPage.setVisible(false);
         userPage.setVisible(false);
+        
+        pageToShow.setVisible(true);
+    }
+    
+    @FXML
+    private void welcomePage() {
+        showPage(welcomePage);
     }
     
     @FXML
     private void databasePage() {
-        welcomePage.setVisible(false);
-        databasePage.setVisible(true);
-        scannerPage.setVisible(false);
-        userPage.setVisible(false);
-    }
-    
-    @FXML
-    private void scannerPage() {
-        welcomePage.setVisible(false);
-        databasePage.setVisible(false);
-        scannerPage.setVisible(true);
-        userPage.setVisible(false);
-    }
-    
-    @FXML
-    private void usersPage() {
-        welcomePage.setVisible(false);
-        databasePage.setVisible(false);
-        scannerPage.setVisible(false);
-        userPage.setVisible(true);
+        showPage(databasePage);
     }
     
     @FXML
@@ -136,8 +116,7 @@ public class DashboardController implements Initializable {
     
     // region Dashboard Page (First Page)
     public void welcomeName(User user) {
-        username = user.getUsername();
-        welcomeText.setText("Welcome, " + username);
+        welcomeText.setText("Welcome, " + user.getUsername());
     }
     // endregion
     
@@ -146,16 +125,13 @@ public class DashboardController implements Initializable {
     private void addItem() {
         if (medicineFormInvalid()) return;
         
-        String id = id_field.getText();
-        String brand = brand_field.getText();
-        String product = product_field.getText();
         double price = safeParseDouble();
         if (price == -1.0) return;
-        String type = typeBox.getValue();
-        String status = statusBox.getValue();
         
-        java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
-        SQLUtils.addItem(id, brand, product, price, type, status, sqlDate, imagePath);
+        String id = id_field.getText(), brand = brand_field.getText(), product = product_field.getText(), type = typeBox.getValue(), status = statusBox.getValue();
+        Date sqlDate = new Date(new java.util.Date().getTime());
+        Medicine medicine = new Medicine(id, brand, product, type, status, price, sqlDate, imagePath);
+        SQLUtils.addItem(medicine);
         
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
@@ -166,16 +142,13 @@ public class DashboardController implements Initializable {
     private void updateItem() {
         if (medicineFormInvalid()) return;
         
-        String id = id_field.getText();
-        String brand = brand_field.getText();
-        String product = product_field.getText();
         double price = safeParseDouble();
         if (price == -1.0) return;
-        String type = typeBox.getValue();
-        String status = statusBox.getValue();
         
-        java.sql.Date sqlDate = new java.sql.Date(new Date().getTime());
-        SQLUtils.updateItem(id, brand, product, type, status, price, sqlDate, imagePath);
+        String id = id_field.getText(), brand = brand_field.getText(), product = product_field.getText(), type = typeBox.getValue(), status = statusBox.getValue();
+        Date sqlDate = new Date(new java.util.Date().getTime());
+        Medicine medicine = new Medicine(id, brand, product, type, status, price, sqlDate, imagePath);
+        SQLUtils.updateItem(medicine);
         
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
@@ -248,7 +221,7 @@ public class DashboardController implements Initializable {
         statusBox.setValue(item.getStatus());
         imagePath = item.getImagePath();
         
-        Utils.createImage(item.getImagePath(), medicine_img);
+        Utils.createImage(imagePath, medicine_img);
     }
     
     @FXML

@@ -1,6 +1,6 @@
 package com.example.li_pharmacy;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Medicine {
     private String id, brand, productName, type, status, imagePath;

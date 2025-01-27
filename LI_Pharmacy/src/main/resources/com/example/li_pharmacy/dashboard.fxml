@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
@@ -40,15 +41,48 @@
         <TextField fx:id="id_field" layoutX="124.0" layoutY="265.0" prefHeight="25.0" prefWidth="82.0" promptText="ID:" />
         <TextField fx:id="brand_field" layoutX="124.0" layoutY="303.0" prefHeight="25.0" prefWidth="82.0" promptText="Brand:" />
         <TextField fx:id="product_field" layoutX="124.0" layoutY="341.0" prefHeight="25.0" prefWidth="82.0" promptText="Product Name:" />
-        <TextField fx:id="price_field" layoutX="217.0" layoutY="265.0" prefHeight="25.0" prefWidth="82.0" promptText="Price: $0.00" />
-      <ChoiceBox fx:id="typeBox" layoutX="217.0" layoutY="303.0" prefHeight="25.0" prefWidth="82.0" />
-      <ChoiceBox fx:id="statusBox" layoutX="217.0" layoutY="341.0" prefHeight="25.0" prefWidth="82.0" />
-        <Button layoutX="154.0" layoutY="372.0" mnemonicParsing="false" onAction="#chooseImage" text="Choose Image File" />
-      <TextField fx:id="searchBar" layoutX="421.0" layoutY="265.0" onKeyTyped="#searchMedicine" prefHeight="25.0" prefWidth="164.0" promptText="Search:" />
-        <Button layoutX="421.0" layoutY="319.0" mnemonicParsing="false" onAction="#addItem" prefHeight="32.0" prefWidth="82.0" styleClass="notActive" text="Add Item" />
-        <Button layoutX="421.0" layoutY="357.0" mnemonicParsing="false" onAction="#updateItem" prefHeight="29.0" prefWidth="82.0" styleClass="notActive" text="Update Item" />
-        <Button layoutX="507.0" layoutY="318.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="32.0" prefWidth="82.0" styleClass="notActive" text="Delete Item" />
-        <Button layoutX="508.0" layoutY="358.0" mnemonicParsing="false" onAction="#clearMedicineForm" prefHeight="29.0" prefWidth="82.0" styleClass="notActive" text="Clear Form" />
+        <TextField fx:id="price_field" layoutX="217.0" layoutY="265.0" prefHeight="25.0" prefWidth="82.0" promptText="Price: 0.00" />
+      <ChoiceBox fx:id="typeBox" layoutX="217.0" layoutY="303.0" prefHeight="25.0" prefWidth="82.0">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ChoiceBox>
+      <ChoiceBox fx:id="statusBox" layoutX="217.0" layoutY="341.0" prefHeight="25.0" prefWidth="82.0">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></ChoiceBox>
+        <Button layoutX="154.0" layoutY="372.0" mnemonicParsing="false" onAction="#chooseImage" text="Choose Image File">
+         <graphic>
+            <FontAwesomeIcon glyphName="IMAGE" selectionEnd="1" selectionStart="1" textAlignment="RIGHT" />
+         </graphic></Button>
+      <TextField fx:id="searchBar" layoutX="421.0" layoutY="265.0" onKeyTyped="#searchMedicine" prefHeight="25.0" prefWidth="177.0" promptText="Search:" />
+        <Button layoutX="421.0" layoutY="306.0" mnemonicParsing="false" onAction="#addItem" prefHeight="32.0" prefWidth="85.0" styleClass="notActive" text="Add Item">
+         <graphic>
+            <FontAwesomeIcon glyphName="PLUS" />
+         </graphic>
+         <font>
+            <Font size="10.0" />
+         </font></Button>
+        <Button layoutX="513.0" layoutY="306.0" mnemonicParsing="false" onAction="#deleteItem" prefHeight="32.0" prefWidth="85.0" styleClass="notActive" text="Delete Item">
+         <font>
+            <Font size="10.0" />
+         </font>
+         <graphic>
+            <FontAwesomeIcon glyphName="TRASH" />
+         </graphic></Button>
+        <Button layoutX="421.0" layoutY="346.0" mnemonicParsing="false" onAction="#updateItem" prefHeight="29.0" prefWidth="85.0" styleClass="notActive" text="Update Item">
+         <font>
+            <Font size="10.0" />
+         </font>
+         <graphic>
+            <FontAwesomeIcon glyphName="ROTATE_RIGHT" />
+         </graphic></Button>
+        <Button layoutX="513.0" layoutY="346.0" mnemonicParsing="false" onAction="#clearMedicineForm" prefHeight="29.0" prefWidth="85.0" styleClass="notActive" text="Clear Form">
+         <font>
+            <Font size="10.0" />
+         </font>
+         <graphic>
+            <FontAwesomeIcon glyphName="CLOSE" />
+         </graphic></Button>
         <ImageView fx:id="medicine_img" fitHeight="134.0" fitWidth="105.0" layoutX="308.0" layoutY="266.0" pickOnBounds="true" preserveRatio="true">
             <Image url="@../../../../../../bin/images/SeanRiley.jpg" />
         </ImageView>
@@ -110,23 +144,13 @@
          <FontAwesomeIcon fill="WHITE" glyphName="HOME" />
       </graphic>
     </Button>
-    <Button layoutX="13.0" layoutY="161.0" mnemonicParsing="false" onAction="#databasePage" prefHeight="25.0" prefWidth="82.0" style="-fx-background-color: transparent;" styleClass="nav" text="Medicine" textFill="WHITE">
+    <Button layoutX="8.0" layoutY="160.0" mnemonicParsing="false" onAction="#databasePage" prefHeight="25.0" prefWidth="82.0" style="-fx-background-color: transparent;" styleClass="nav" text="Medicine" textFill="WHITE">
         <font>
             <Font name="System Bold" size="12.0" />
         </font>
       <graphic>
          <FontAwesomeIcon fill="WHITE" glyphName="STETHOSCOPE" />
       </graphic>
-    </Button>
-    <Button layoutX="13.0" layoutY="186.0" mnemonicParsing="false" onAction="#scannerPage" prefHeight="25.0" prefWidth="82.0" style="-fx-background-color: transparent;" styleClass="nav" text="Purchase" textFill="WHITE" visible="false">
-        <font>
-            <Font name="System Bold" size="12.0" />
-        </font>
-    </Button>
-    <Button fx:id="users_page_btn" layoutX="12.0" layoutY="211.0" mnemonicParsing="false" onAction="#usersPage" prefHeight="25.0" prefWidth="82.0" style="-fx-background-color: transparent;" styleClass="nav" text="Users" textFill="WHITE" visible="false">
-        <font>
-            <Font name="System Bold" size="12.0" />
-        </font>
     </Button>
     <Button layoutX="13.0" layoutY="353.0" mnemonicParsing="false" onAction="#logOut" prefHeight="25.0" prefWidth="82.0" style="-fx-background-color: transparent;" styleClass="nav" text="Log Out" textFill="WHITE">
         <font>

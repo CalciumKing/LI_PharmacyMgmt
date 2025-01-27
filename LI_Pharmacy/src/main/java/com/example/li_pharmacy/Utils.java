@@ -1,5 +1,6 @@
 package com.example.li_pharmacy;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -108,7 +109,7 @@ public class Utils {
     }
     
     public static void windowClose() {
-        System.exit(0);
+        Platform.exit();
     }
     
     public static void windowClick(MouseEvent event) {
