@@ -27,9 +27,8 @@ public class SQLUtils {
             String sql = "select * from medicine;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             ResultSet result = prepared.executeQuery();
-            ObservableList<Medicine> data = FXCollections.observableArrayList();
             
-            return getMedicineData(result, data);
+            return getMedicineData(result, FXCollections.observableArrayList());
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Refreshing Table", "There was an error running the SQL information to refresh the table.");
             return null;
@@ -234,10 +233,10 @@ public class SQLUtils {
                 double doubleValue;
                 try {
                     doubleValue = Double.parseDouble(value);
+                    yield i -> i.getPrice() == doubleValue;
                 } catch (NumberFormatException ignored) {
                     yield null;
                 }
-                yield i -> i.getPrice() == doubleValue;
             }
             default -> null;
         };
