@@ -7,6 +7,13 @@ public class Medicine {
     private double price;
     private Date date;
     
+    public Medicine(String brand, String productName, String type, double price) {
+        this.brand = brand;
+        this.productName = productName;
+        this.type = type;
+        this.price = price;
+    }
+    
     public Medicine(String id, String brand, String productName, String type,
                     String status, double price, Date date, String imagePath) {
         this.id = id;

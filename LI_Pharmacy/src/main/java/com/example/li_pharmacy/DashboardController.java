@@ -19,6 +19,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -29,6 +30,8 @@ public class DashboardController implements Initializable {
     private TextField id_field, brand_field, product_field, price_field, searchBar, scanner_id_field, username_field, email_field, grade_field;
     
     @FXML
+    private Button dashBoard_btn, medicine_btn;
+    @FXML
     private AnchorPane dashboard, databasePage, scannerPage, userPage, welcomePage;
     
     @FXML
@@ -36,34 +39,69 @@ public class DashboardController implements Initializable {
     private String imagePath = "";
     
     @FXML
-    private Label welcomeText;
+    private Label welcomeText, med_cost_label, cart_total_label;
     
     @FXML
     private ChoiceBox<String> typeBox, statusBox;
+    @FXML
+    private ComboBox<String> purchaseTypeBox, purchaseBrandBox, purchaseNameBox, purchasePriceBox;
     private final String[] types = new String[]{"Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"}, statuses = new String[]{"Available", "Not Available"};
+    private ArrayList<String> purchaseTypes, purchaseBrands, purchaseNames, purchasePrices;
+    private ArrayList<Medicine> cart = new ArrayList<>();
     
     @FXML
-    private TableView<Medicine> medicine_table;
+    private TableView<Medicine> medicine_table, purchase_table;
     @FXML
-    private TableColumn<Medicine, String> id_col, brand_col, product_col, type_col, status_col;
+    private TableColumn<Medicine, String> id_col, brand_col, product_col, type_col, status_col, purchase_id, purchase_type, purchase_brand, purchase_product_name;
     @FXML
-    private TableColumn<Medicine, Double> price_col;
+    private TableColumn<Medicine, Double> price_col, purchase_price;
     @FXML
     private TableColumn<Medicine, Date> date_col;
     @FXML
-    ObservableList<Medicine> items;
+    private ObservableList<Medicine> items, cartItems;
+    @FXML
+    private Spinner<Integer> spinner;
     
     private double defaultWidth, defaultHeight;
     private boolean alreadyMaximized = false;
+    
+    private double cartPrice = 0.00;
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initCols();
         initDropdowns();
+        initResultDropdowns();
         
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
+        purchase_table.setItems(items);
         clearMedicineForm();
+        
+        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 0, 0));
+    }
+    
+    private void initResultDropdowns() {
+        purchaseTypes = SQLUtils.getOptions("type");
+        purchaseBrands = SQLUtils.getOptions("brand");
+        purchaseNames = SQLUtils.getOptions("productName");
+        purchasePrices = SQLUtils.getOptions("price");
+        
+        for(String type : purchaseTypes)
+            purchaseTypeBox.getItems().add(type);
+//        purchaseTypeBox.setValue("Type Search:");
+        
+        for(String brand : purchaseBrands)
+            purchaseBrandBox.getItems().add(brand);
+//        purchaseBrandBox.setValue("Brand Search:");
+        
+        for(String name : purchaseNames)
+            purchaseNameBox.getItems().add(name);
+//        purchaseNameBox.setValue("Name Search:");
+        
+        for(String price : purchasePrices)
+            purchasePriceBox.getItems().add(price);
+//        purchasePriceBox.setValue("Price Search:");
     }
     
     private void initCols() {
@@ -74,6 +112,12 @@ public class DashboardController implements Initializable {
         type_col.setCellValueFactory(new PropertyValueFactory<>("type"));
         status_col.setCellValueFactory(new PropertyValueFactory<>("status"));
         date_col.setCellValueFactory(new PropertyValueFactory<>("date"));
+        
+        purchase_id.setCellValueFactory(new PropertyValueFactory<>("id"));
+        purchase_type.setCellValueFactory(new PropertyValueFactory<>("type"));
+        purchase_brand.setCellValueFactory(new PropertyValueFactory<>("brand"));
+        purchase_product_name.setCellValueFactory(new PropertyValueFactory<>("productName"));
+        purchase_price.setCellValueFactory(new PropertyValueFactory<>("price"));
     }
     
     private void initDropdowns() {
@@ -88,23 +132,23 @@ public class DashboardController implements Initializable {
     // endregion
     
     // region Side NavBar
-    private void showPage(AnchorPane pageToShow) {
+    @FXML
+    private void showPage(ActionEvent event) {
         welcomePage.setVisible(false);
         databasePage.setVisible(false);
-        scannerPage.setVisible(false);
-        userPage.setVisible(false);
+//        scannerPage.setVisible(false);
+//        userPage.setVisible(false);
         
-        pageToShow.setVisible(true);
-    }
-    
-    @FXML
-    private void welcomePage() {
-        showPage(welcomePage);
-    }
-    
-    @FXML
-    private void databasePage() {
-        showPage(databasePage);
+        Button button = (Button) event.getSource();
+        AnchorPane pageToShow = null;
+        
+        if(button.equals(dashBoard_btn))
+            pageToShow = welcomePage;
+        else if(button.equals(medicine_btn))
+            pageToShow = databasePage;
+        
+        if(pageToShow != null)
+            pageToShow.setVisible(true);
     }
     
     @FXML
@@ -136,6 +180,7 @@ public class DashboardController implements Initializable {
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
         clearMedicineForm();
+        initResultDropdowns();
     }
     
     @FXML
@@ -153,6 +198,7 @@ public class DashboardController implements Initializable {
         items = SQLUtils.refreshTable();
         medicine_table.setItems(items);
         clearMedicineForm();
+        initResultDropdowns();
     }
     
     private double safeParseDouble() {
@@ -175,6 +221,7 @@ public class DashboardController implements Initializable {
             items = SQLUtils.refreshTable();
             medicine_table.setItems(items);
             clearMedicineForm();
+            initResultDropdowns();
         }
     }
     
@@ -257,6 +304,109 @@ public class DashboardController implements Initializable {
         String searchText = searchBar.getText();
         items = (searchText.isEmpty()) ? SQLUtils.refreshTable() : SQLUtils.searchTable(searchText);
         medicine_table.setItems(items);
+    }
+    // endregion
+    
+    // region Purchase Table (Third Page)
+    @FXML
+    private void addToCart() {
+        System.out.println("add to cart");
+        Medicine item = SQLUtils.getMedicine(new Medicine(
+                purchaseBrandBox.getValue(),
+                purchaseNameBox.getValue(),
+                purchaseTypeBox.getValue(),
+                Double.parseDouble(purchasePriceBox.getValue())
+        ));
+        if(item == null) return;
+        System.out.println("working");
+        
+        cart.add(item);
+        cartPrice += item.getPrice() * spinner.getValue();
+        cart_total_label.setText("$" + cartPrice);
+        
+        clearMedicine();
+    }
+    
+    @FXML
+    private void removeFromCart() {
+        System.out.println("remove from cart");
+        Medicine item = SQLUtils.getMedicine(new Medicine(
+                purchaseBrandBox.getValue(),
+                purchaseNameBox.getValue(),
+                purchaseTypeBox.getValue(),
+                Double.parseDouble(purchasePriceBox.getValue())
+        ));
+        if(item == null) return;
+        System.out.println("working");
+        
+        cart.remove(item);
+        cartPrice -= item.getPrice() * spinner.getValue();
+        cart_total_label.setText("$" + cartPrice);
+        
+        clearMedicine();
+    }
+    
+    @FXML
+    private void clearCart() {
+        System.out.println("clear cart");
+        clearMedicine();
+        
+        cart_total_label.setText("$0.00");
+        cartPrice = 0.00;
+        cart.clear();
+    }
+    
+    private void clearMedicine() {
+        purchaseTypeBox.setValue("Type Search:");
+        purchaseBrandBox.setValue("Brand Search:");
+        purchaseNameBox.setValue("Name Search:");
+        purchasePriceBox.setValue("Price Search:");
+        med_cost_label.setText("$0.00");
+        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 0, 0));
+    }
+    
+    @FXML
+    private void searchMeds() {
+        System.out.println("Searching");
+//        for(Medicine item : purchase_table.getItems())
+//            System.out.println(item.getId());
+        System.out.println(typeBox.getValue());
+        purchase_table.setItems(SQLUtils.updateMedicineTable(items, 1, purchaseTypeBox.getValue()));
+        for(Medicine item : purchase_table.getItems())
+            System.out.println(item.getId());
+        System.out.println("finished");
+    }
+    
+    @FXML
+    private void purchaseSelectedItem() {
+        Medicine item = purchase_table.getSelectionModel().getSelectedItem();
+        if (item == null) return;
+        System.out.println("working");
+        
+        spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
+        
+        purchaseTypeBox.setValue(item.getType());
+        purchaseBrandBox.setValue(item.getBrand());
+        purchaseNameBox.setValue(item.getProductName());
+        purchasePriceBox.setValue(String.valueOf(item.getPrice()));
+        med_cost_label.setText("$" + (spinner.getValue() * item.getPrice()));
+    }
+    
+    @FXML
+    private void changeCost() {
+        double price = doubleValue(purchasePriceBox.getValue());
+        if(price != -1.0)
+            med_cost_label.setText("$" + (spinner.getValue() * price));
+    }
+    
+    private static double doubleValue(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            System.out.println(value);
+            e.printStackTrace();
+            return -1.0;
+        }
     }
     // endregion
     

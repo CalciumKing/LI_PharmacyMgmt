@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class SQLUtils {
     public static User register(String username, String password, String securityQuestion, String securityAnswer) {
@@ -17,7 +19,7 @@ public class SQLUtils {
         return runFormSQL(sql, new User(username, password), true);
     }
     
-    // region Table
+    // region Medicine Table
     public static ObservableList<Medicine> refreshTable() {
         try (Connection connection = connectDB()) {
             if (connection == null) return null;
@@ -102,9 +104,8 @@ public class SQLUtils {
                 prepared.setString(i, "%" + searchString + "%");
             prepared.setString(5, searchString + "%");
             ResultSet result = prepared.executeQuery();
-            ObservableList<Medicine> data = FXCollections.observableArrayList();
             
-            return getMedicineData(result, data);
+            return getMedicineData(result, FXCollections.observableArrayList());
         } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Searching Table", "There was an error running the SQL information to refresh the table.");
             return null;
@@ -201,6 +202,79 @@ public class SQLUtils {
             Utils.errorAlert(Alert.AlertType.ERROR, "Medicine Data Error", "Error Compiling Medicine Data", "Database could not be connected to, please try again.");
             return null;
         }
+    }
+    
+    public static ArrayList<String> getOptions(String column) {
+        try (Connection connection = connectDB()) {
+            if (connection == null) return null;
+            
+            String sql = "select distinct " + column + " from medicine;";
+            PreparedStatement prepared = connection.prepareStatement(sql);
+            ResultSet result = prepared.executeQuery();
+            ArrayList<String> data = new ArrayList<>();
+            
+            while (result.next())
+                data.add(result.getString(1));
+            return data;
+        } catch (Exception e) {
+            System.out.println("error in getOptions");
+            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getOptions", "Error Getting Data From Database", "There was an error getting some data from the database, please try again.");
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    public static ObservableList<Medicine> updateMedicineTable(ObservableList<Medicine> table, int box, String value) {
+        System.out.println(value);
+        Predicate<Medicine> filter = switch(box) {
+            case 1 -> i -> i.getType().equals(value);
+            case 2 -> i -> i.getBrand().equals(value);
+            case 3 -> i -> i.getProductName().equals(value);
+            case 4 -> {
+                double doubleValue;
+                try {
+                    doubleValue = Double.parseDouble(value);
+                } catch (NumberFormatException ignored) {
+                    yield null;
+                }
+                yield i -> i.getPrice() == doubleValue;
+            }
+            default -> null;
+        };
+        return (filter != null) ? table.filtered(filter) : table;
+    }
+    
+    public static Medicine getMedicine(Medicine searchMedicine) {
+        try (Connection connection = connectDB()) {
+            if (connection == null) return null;
+            String sql = "select * from medicine where type = ? and brand = ? and productName = ? and price = ? limit 1;";
+            
+            System.out.println(sql);
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, searchMedicine.getType());
+            statement.setString(2, searchMedicine.getBrand());
+            statement.setString(3, searchMedicine.getProductName());
+            statement.setDouble(4, searchMedicine.getPrice());
+            System.out.println(statement);
+            ResultSet result = statement.executeQuery();
+            
+            if(result.next())
+                return new Medicine(
+                        result.getString(1),
+                        result.getString(3),
+                        result.getString(4),
+                        result.getString(5),
+                        result.getString(6),
+                        result.getDouble(7),
+                        result.getDate(8),
+                        result.getString(9)
+                );
+        } catch (Exception e) {
+            System.out.println("error in getMedicine");
+            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getMedicine", "Error Getting Medicine From Database", "There was an error getting medicine from the database, please try again.");
+            e.printStackTrace();
+        }
+        return null;
     }
     
     private static Connection connectDB() {
