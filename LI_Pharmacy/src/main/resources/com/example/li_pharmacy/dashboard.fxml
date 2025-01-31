@@ -88,7 +88,7 @@
             <Image url="@../../../../../../bin/images/SeanRiley.jpg" />
         </ImageView>
     </AnchorPane>
-   <AnchorPane fx:id="purchasePage" layoutX="10.0" layoutY="10.0" prefHeight="400.0" prefWidth="594.0" visible="false">
+   <AnchorPane fx:id="purchasePage" layoutX="10.0" layoutY="10.0" prefHeight="400.0" prefWidth="594.0">
       <children>
          <TableView fx:id="purchase_table" layoutX="102.0" layoutY="33.0" onMouseClicked="#purchaseSelectedItem" prefHeight="357.0" prefWidth="349.0">
             <columns>
@@ -106,26 +106,32 @@
             </columns>
          </TableView>
          <Spinner fx:id="spinner" layoutX="460.0" layoutY="153.0" onMouseClicked="#changeCost" prefHeight="25.0" prefWidth="131.0" />
-         <ComboBox fx:id="purchaseTypeBox" layoutX="461.0" layoutY="23.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Type Search:" />
-         <ComboBox fx:id="purchaseBrandBox" layoutX="461.0" layoutY="54.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Brand Search:" />
-         <ComboBox fx:id="purchaseNameBox" layoutX="461.0" layoutY="86.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Name Search:" />
-         <ComboBox fx:id="purchasePriceBox" layoutX="461.0" layoutY="118.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Price Search:" />
+         <ComboBox fx:id="purchaseTypeBox" layoutX="461.0" layoutY="23.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Type Search:">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor>
+         </ComboBox>
+         <ComboBox fx:id="purchaseBrandBox" layoutX="461.0" layoutY="54.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Brand Search:">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor>
+         </ComboBox>
+         <ComboBox fx:id="purchaseNameBox" layoutX="461.0" layoutY="86.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Name Search:">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor>
+         </ComboBox>
+         <ComboBox fx:id="purchasePriceBox" layoutX="461.0" layoutY="118.0" onAction="#searchMeds" prefHeight="25.0" prefWidth="127.0" promptText="Price Search:">
+            <cursor>
+               <Cursor fx:constant="HAND" />
+            </cursor>
+         </ComboBox>
          <Label layoutX="476.0" layoutY="192.0" text="Medicine Cost:">
             <font>
                <Font size="15.0" />
             </font>
          </Label>
          <Label fx:id="med_cost_label" layoutX="511.0" layoutY="215.0" text="\$0.00">
-            <font>
-               <Font size="15.0" />
-            </font>
-         </Label>
-         <Label layoutX="497.0" layoutY="355.0" text="Cart Total:">
-            <font>
-               <Font size="15.0" />
-            </font>
-         </Label>
-         <Label fx:id="cart_total_label" layoutX="511.0" layoutY="378.0" text="\$0.00">
             <font>
                <Font size="15.0" />
             </font>
@@ -146,7 +152,7 @@
                <FontAwesomeIcon glyphName="MINUS" />
             </graphic>
          </Button>
-         <Button layoutX="490.0" layoutY="323.0" mnemonicParsing="false" onAction="#clearCart" prefHeight="32.0" prefWidth="73.0" styleClass="notActive" text="Clear Cart">
+         <Button layoutX="490.0" layoutY="323.0" mnemonicParsing="false" onAction="#clearCart" prefHeight="32.0" prefWidth="82.0" styleClass="notActive" text="Clear Cart">
             <font>
                <Font size="10.0" />
             </font>
@@ -154,6 +160,16 @@
                <FontAwesomeIcon glyphName="TRASH" />
             </graphic>
          </Button>
+         <Label layoutX="497.0" layoutY="355.0" text="Cart Total:">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Label>
+         <Label fx:id="cart_total_label" layoutX="511.0" layoutY="378.0" text="\$0.00">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Label>
       </children>
    </AnchorPane>
     <AnchorPane fx:id="scannerPage" prefHeight="410.0" prefWidth="611.0" visible="false">

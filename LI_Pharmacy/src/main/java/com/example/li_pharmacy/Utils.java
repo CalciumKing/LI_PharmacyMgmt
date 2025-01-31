@@ -101,6 +101,18 @@ public class Utils {
         else
             imageView.setImage(image);
     }
+    
+    public static double safeParseDouble(String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException ignored) {
+            Utils.errorAlert(Alert.AlertType.ERROR,
+                    "Safe Parse Double Error",
+                    "Error Parsing a String Value To A Double",
+                    "Cannot parse " + value + " into a double, please try again.");
+            return -1.0;
+        }
+    }
     // endregion
     
     // region Window Settings

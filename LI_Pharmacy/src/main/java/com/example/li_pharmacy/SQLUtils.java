@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.function.Predicate;
 
 public class SQLUtils {
@@ -203,44 +204,22 @@ public class SQLUtils {
         }
     }
     
-    public static ArrayList<String> getOptions(String column) {
+    public static ObservableList<String> getOptions(String column) {
         try (Connection connection = connectDB()) {
             if (connection == null) return null;
             
             String sql = "select distinct " + column + " from medicine;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             ResultSet result = prepared.executeQuery();
-            ArrayList<String> data = new ArrayList<>();
+            ObservableList<String> data = FXCollections.observableArrayList();
             
             while (result.next())
                 data.add(result.getString(1));
             return data;
-        } catch (Exception e) {
-            System.out.println("error in getOptions");
+        } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error In getOptions", "Error Getting Data From Database", "There was an error getting some data from the database, please try again.");
-            e.printStackTrace();
         }
         return null;
-    }
-    
-    public static ObservableList<Medicine> updateMedicineTable(ObservableList<Medicine> table, int box, String value) {
-        System.out.println(value);
-        Predicate<Medicine> filter = switch(box) {
-            case 1 -> i -> i.getType().equals(value);
-            case 2 -> i -> i.getBrand().equals(value);
-            case 3 -> i -> i.getProductName().equals(value);
-            case 4 -> {
-                double doubleValue;
-                try {
-                    doubleValue = Double.parseDouble(value);
-                    yield i -> i.getPrice() == doubleValue;
-                } catch (NumberFormatException ignored) {
-                    yield null;
-                }
-            }
-            default -> null;
-        };
-        return (filter != null) ? table.filtered(filter) : table;
     }
     
     public static Medicine getMedicine(Medicine searchMedicine) {
@@ -248,13 +227,11 @@ public class SQLUtils {
             if (connection == null) return null;
             String sql = "select * from medicine where type = ? and brand = ? and productName = ? and price = ? limit 1;";
             
-            System.out.println(sql);
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setString(1, searchMedicine.getType());
             statement.setString(2, searchMedicine.getBrand());
             statement.setString(3, searchMedicine.getProductName());
             statement.setDouble(4, searchMedicine.getPrice());
-            System.out.println(statement);
             ResultSet result = statement.executeQuery();
             
             if(result.next())
@@ -268,10 +245,8 @@ public class SQLUtils {
                         result.getDate(8),
                         result.getString(9)
                 );
-        } catch (Exception e) {
-            System.out.println("error in getMedicine");
+        } catch (Exception ignored) {
             Utils.errorAlert(Alert.AlertType.ERROR, "Error In getMedicine", "Error Getting Medicine From Database", "There was an error getting medicine from the database, please try again.");
-            e.printStackTrace();
         }
         return null;
     }
