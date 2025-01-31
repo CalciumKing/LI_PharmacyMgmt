@@ -10,7 +10,8 @@ import java.util.Comparator;
 import java.util.function.Predicate;
 
 public class SQLUtils {
-    public static User register(String username, String password, String securityQuestion, String securityAnswer) {
+    public static User register(String username, String password,
+                                String securityQuestion, String securityAnswer) {
         String sql = "insert into users (username, password, secQuestion, secAnswer) values (?, ?, ?, ?);";
         return runFormSQL(sql, new User(username, password, securityQuestion, securityAnswer), false);
     }
@@ -31,7 +32,12 @@ public class SQLUtils {
             
             return getMedicineData(result, FXCollections.observableArrayList());
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Refreshing Table", "There was an error running the SQL information to refresh the table.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "Error Refreshing Table",
+                    "There was an error running the SQL information to refresh the table."
+            );
             return null;
         }
     }
@@ -40,7 +46,8 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return;
             
-            String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date, imagePath) values (?, ?, ?, ?, ?, ?, ?, ?);";
+            String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date, imagePath)" +
+                    "values (?, ?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement prepared = connection.prepareStatement(sql);
             
             prepared.setString(1, medicine.getId());
@@ -53,7 +60,12 @@ public class SQLUtils {
             prepared.setString(8, medicine.getImagePath());
             prepared.executeUpdate();
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error In addItem", "There was an error running the SQL information to add to the table.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "Error In addItem",
+                    "There was an error running the SQL information to add to the table."
+            );
         }
     }
     
@@ -61,7 +73,9 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return;
             
-            String sql = "update medicine set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ?, imagePath = ? where medicineID = ?;";
+            String sql = "update medicine" +
+                    "set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ?, imagePath = ?" +
+                    "where medicineID = ?;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             
             prepared.setString(1, medicine.getId());
@@ -75,7 +89,12 @@ public class SQLUtils {
             prepared.setString(9, medicine.getId());
             prepared.executeUpdate();
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error In updateItem", "There was an error running the SQL information to update the table.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "Error in updateItem",
+                    "There was an error running the SQL information to update the table."
+            );
         }
     }
     
@@ -89,7 +108,12 @@ public class SQLUtils {
             prepared.setString(1, id);
             prepared.executeUpdate();
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error in deleteItem", "There was an error deleting information from the table.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "Error in deleteItem",
+                    "There was an error deleting an item from the table."
+            );
         }
     }
     
@@ -97,7 +121,8 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return null;
             
-            String sql = "select * from medicine where medicineID like ? or brand like ? or productName like ? or type like ? or status like ?;";
+            String sql = "select * from medicine" +
+                    "where medicineID like ? or brand like ? or productName like ? or type like ? or status like ?;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             
             for (int i = 1; i <= 4; i++)
@@ -107,9 +132,14 @@ public class SQLUtils {
             
             return getMedicineData(result, FXCollections.observableArrayList());
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error", "Error Searching Table", "There was an error running the SQL information to refresh the table.");
-            return null;
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error",
+                    "Error in searchTable",
+                    "There was an error running the SQL information to search through the table."
+            );
         }
+        return null;
     }
     // endregion
     
@@ -119,7 +149,11 @@ public class SQLUtils {
             if (connection == null) return null;
             
             PreparedStatement prepared = connection.prepareStatement(sql);
-            String username = user.getUsername(), password = user.getPassword(), securityQuestion = user.getSecurityQuestion(), securityAnswer = user.getSecurityAnswer();
+            String username = user.getUsername();
+            String password = user.getPassword();
+            String securityQuestion = user.getSecurityQuestion();
+            String securityAnswer = user.getSecurityAnswer();
+            
             prepared.setString(1, username);
             prepared.setString(2, password);
             if (securityQuestion != null)
@@ -140,10 +174,16 @@ public class SQLUtils {
             } else {
                 prepared.executeUpdate();
                 sql = "select * from users where username = ? and password = ? limit 1;";
-                return runFormSQL(sql, new User(username, password), true); // gets the user from the database after creating it, only does recursion once
+                // gets the user from the database after creating it, only does recursion once
+                return runFormSQL(sql, new User(username, password), true);
             }
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error in runFormSQL", "Error Running SQL", "There was an error running the SQL information, or that user doesn't exist.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error in runFormSQL",
+                    "Error Running SQL",
+                    "There was an error running the SQL information, or that user doesn't exist."
+            );
         }
         return null;
     }
@@ -165,7 +205,12 @@ public class SQLUtils {
                         result.getString("secAnswer")
                 );
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getUser", "Error Getting User From Database", "There was an error getting a user from the database, please try again.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error in getUser",
+                    "Error Getting User From Database",
+                    "There was an error getting a user from the database, please try again."
+            );
         }
         return null;
     }
@@ -181,11 +226,17 @@ public class SQLUtils {
             prepared.setString(2, username);
             prepared.executeUpdate();
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error In setPassword", "Error setting a new password", "There was an error setting a new password for this user, please try again.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error in setPassword",
+                    "Error setting a password",
+                    "There was an error setting a password for this user, please try again."
+            );
         }
     }
     
-    private static ObservableList<Medicine> getMedicineData(ResultSet result, ObservableList<Medicine> data) {
+    private static ObservableList<Medicine> getMedicineData(ResultSet result,
+                                                            ObservableList<Medicine> data) {
         try {
             while (result.next())
                 data.add(new Medicine(
@@ -199,9 +250,14 @@ public class SQLUtils {
                         result.getString("imagePath")));
             return data;
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Medicine Data Error", "Error Compiling Medicine Data", "Database could not be connected to, please try again.");
-            return null;
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error in getMedicineData",
+                    "Error Compiling Medicine Data",
+                    "There was an error compiling all medicine data from the database, please try again."
+            );
         }
+        return null;
     }
     
     public static ObservableList<String> getOptions(String column) {
@@ -217,7 +273,12 @@ public class SQLUtils {
                 data.add(result.getString(1));
             return data;
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getOptions", "Error Getting Data From Database", "There was an error getting some data from the database, please try again.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error in getOptions",
+                    "Error getting '" + column + "' medicine options",
+                    "There was an error getting '" + column + "' options from the database, please try again."
+            );
         }
         return null;
     }
@@ -234,9 +295,9 @@ public class SQLUtils {
             statement.setDouble(4, searchMedicine.getPrice());
             ResultSet result = statement.executeQuery();
             
-            if(result.next())
+            if (result.next())
                 return new Medicine(
-                        result.getString(1),
+                        result.getString(2),
                         result.getString(3),
                         result.getString(4),
                         result.getString(5),
@@ -246,7 +307,12 @@ public class SQLUtils {
                         result.getString(9)
                 );
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Error In getMedicine", "Error Getting Medicine From Database", "There was an error getting medicine from the database, please try again.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Error In getMedicine",
+                    "Error Getting Medicine From Database",
+                    "There was an error getting medicine from the database, please try again."
+            );
         }
         return null;
     }
@@ -255,9 +321,14 @@ public class SQLUtils {
         try {
             return DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy", "root", "password");
         } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Connection Error", "Error Connecting To Auto Database", "Database could not be connected to, please try again.");
-            return null;
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Connection Error",
+                    "Error Connecting To Pharmacy Database",
+                    "Database could not be connected to, please try again."
+            );
         }
+        return null;
     }
     // endregion
 }

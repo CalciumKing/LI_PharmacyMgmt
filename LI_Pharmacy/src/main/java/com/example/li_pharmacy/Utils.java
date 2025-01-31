@@ -17,6 +17,7 @@ import javafx.scene.transform.Scale;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.text.DecimalFormat;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -25,12 +26,14 @@ public class Utils {
     private static double yOffset = 0;
     
     // region Alert Methods
-    public static void errorAlert(Alert.AlertType type, String title, String headerText, String contentText) {
+    public static void errorAlert(Alert.AlertType type, String title,
+                                  String headerText, String contentText) {
         Alert alert = createAlert(type, title, headerText, contentText);
         alert.showAndWait();
     }
     
-    private static Alert createAlert(Alert.AlertType type, String title, String headerText, String contentText) {
+    private static Alert createAlert(Alert.AlertType type, String title,
+                                     String headerText, String contentText) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(headerText);
@@ -38,7 +41,8 @@ public class Utils {
         return alert;
     }
     
-    public static Optional<ButtonType> confirmAlert(Alert.AlertType type, String title, String headerText, String contentText) {
+    public static Optional<ButtonType> confirmAlert(Alert.AlertType type, String title,
+                                                    String headerText, String contentText) {
         Alert alert = createAlert(type, title, headerText, contentText);
         ButtonType yes = new ButtonType("Yes", ButtonBar.ButtonData.OK_DONE);
         ButtonType no = new ButtonType("No", ButtonBar.ButtonData.CANCEL_CLOSE);
@@ -64,7 +68,12 @@ public class Utils {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (Exception ignored) {
-            errorAlert(Alert.AlertType.ERROR, "Scene Error", "Error Changing Scene", "There was an error changing scenes, please try again");
+            errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Scene Error",
+                    "Error Changing Scene",
+                    "There was an error changing scenes, please try again"
+            );
         }
     }
     
@@ -85,7 +94,12 @@ public class Utils {
         String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[/~`!@#$%^&*()_+{};:',<.>? =]).{8,}$";
         
         if (password != null && !Pattern.compile(passwordRegex).matcher(password).matches()) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Password", "Please Enter A Valid Password That Contains At Least 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number, and 1 Special Character");
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Invalid Password",
+                    "Please Enter A Valid Password That Contains At Least 8 Characters, 1 Uppercase, 1 Lowercase, 1 Number, and 1 Special Character"
+            );
             return false;
         }
         
@@ -106,12 +120,20 @@ public class Utils {
         try {
             return Double.parseDouble(value);
         } catch (NumberFormatException ignored) {
-            Utils.errorAlert(Alert.AlertType.ERROR,
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
                     "Safe Parse Double Error",
                     "Error Parsing a String Value To A Double",
-                    "Cannot parse " + value + " into a double, please try again.");
-            return -1.0;
+                    "Cannot parse " + value + " into a double, please try again."
+            );
+            return formatDouble(-1);
         }
+    }
+    
+    public static double formatDouble(double value) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        System.out.println(df.format(value));
+        return safeParseDouble(df.format(value));
     }
     // endregion
     

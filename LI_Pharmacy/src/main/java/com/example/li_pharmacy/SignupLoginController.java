@@ -17,7 +17,7 @@ public class SignupLoginController implements Initializable {
     private int pageStatus = 0;
     @FXML
     private AnchorPane page, forgotPasswordPane, securityQuestionPane, loginPane, signupPane;
-    private final String[] securityQuestions = new String[]{
+    private final String[] securityQuestions = {
             "What was the name of your favorite childhood pet?",
             "What year was your grandmother born?",
             "What month was your first child born?",
@@ -44,7 +44,7 @@ public class SignupLoginController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         for (String item : securityQuestions)
             choiceBox.getItems().add(item);
-        choiceBox.setOnAction((event -> securityQuestion = choiceBox.getSelectionModel().getSelectedItem()));
+        choiceBox.setOnAction(( __ -> securityQuestion = choiceBox.getSelectionModel().getSelectedItem()));
         choiceBox.setValue("Choose Security Question");
     }
     // endregion
@@ -52,7 +52,8 @@ public class SignupLoginController implements Initializable {
     // region Form Methods
     @FXML
     private void changeForm() {
-        ObservableList<String> shortLogin = login.getStyleClass(), shortSignUp = signup.getStyleClass();
+        ObservableList<String> shortLogin = login.getStyleClass();
+        ObservableList<String> shortSignUp = signup.getStyleClass();
         if (shortLogin.contains("active")) { // switching to signup
             loginPane.setVisible(false);
             signupPane.setVisible(true);
@@ -115,8 +116,7 @@ public class SignupLoginController implements Initializable {
     
     @FXML
     private void checkValidUser() {
-        String name = username.getText();
-        User user = SQLUtils.getUser(name);
+        User user = SQLUtils.getUser(username.getText());
         if (pageStatus == 2 && user != null) {
             securityQuestion = user.getSecurityQuestion();
             securityAnswer = user.getSecurityAnswer();
@@ -132,7 +132,12 @@ public class SignupLoginController implements Initializable {
     @FXML
     private void resetPassword() {
         if (!securityAnswerField.getText().equals(securityAnswer)) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Non-Matching Fields", "The Security Question Field Does Not Match The Security Questions Answer.");
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Non-Matching Fields",
+                    "The Security Question Field Does Not Match The Security Questions Answer."
+            );
             return;
         }
         
@@ -156,7 +161,12 @@ public class SignupLoginController implements Initializable {
         User user = SQLUtils.login(username.getText(), loginPassword.getText());
         
         if (user == null) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Null User", "That User Does Not Exist", "Please enter information for a user that does already exist.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Null User",
+                    "That User Does Not Exist",
+                    "Please enter information for a user that already exists."
+            );
             return;
         }
         
@@ -168,7 +178,12 @@ public class SignupLoginController implements Initializable {
     @FXML
     private void createUser() {
         if (validForm()) {
-            User user = SQLUtils.register(username.getText(), signupPassword.getText(), choiceBox.getValue(), newSecurityAnswerField.getText());
+            User user = SQLUtils.register(
+                    username.getText(),
+                    signupPassword.getText(),
+                    choiceBox.getValue(),
+                    newSecurityAnswerField.getText()
+            );
             
             clearForm();
             Utils.changeScene("dashboard.fxml", user);
@@ -179,11 +194,19 @@ public class SignupLoginController implements Initializable {
     
     // region Form Validation
     private boolean validForm() {
-        String name = username.getText(), newPass = newPasswordField.getText(), signPass = signupPassword.getText(), secAnswer = newSecurityAnswerField.getText();
+        String name = username.getText();
+        String newPass = newPasswordField.getText();
+        String signPass = signupPassword.getText();
+        String secAnswer = newSecurityAnswerField.getText();
         User user = SQLUtils.getUser(name);
         
         if (isFormEmpty()) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Invalid Fields",
+                    "All Fields Must Be Filled In"
+            );
             return false;
         } else if (signup.getStyleClass().contains("active"))
             return checkSignupForm(user, signPass);
@@ -194,10 +217,20 @@ public class SignupLoginController implements Initializable {
     
     private static boolean checkLoginForm(User user, String secAnswer) {
         if (user == null) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Does Not Exist", "Please enter valid information for a user that does already exists.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Null User",
+                    "That User Does Not Exist",
+                    "Please enter information for a user that already exists."
+            );
             return true;
         } else if (user.getSecurityAnswer() != null && !user.getSecurityAnswer().equals(secAnswer)) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Passwords Must Match", "Password And Confirm Password Must Match");
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Passwords Must Match",
+                    "Password And Confirm Password Must Match"
+            );
             return true;
         }
         return false;
@@ -205,7 +238,12 @@ public class SignupLoginController implements Initializable {
     
     private static boolean checkSignupForm(User user, String signPass) {
         if (user != null) {
-            Utils.errorAlert(Alert.AlertType.ERROR, "Invalid Info", "That User Already Exists", "Please enter information for a user that does not already exist.");
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Invalid Info",
+                    "That User Already Exists",
+                    "Please enter information for a user that does not already exist."
+            );
             return false;
         } else return Utils.regexValidation(signPass);
     }
@@ -241,6 +279,8 @@ public class SignupLoginController implements Initializable {
     
     @FXML
     private void windowDrag(MouseEvent event) {
+        if(alreadyMaximized)
+            windowMaximize();
         Utils.windowDrag(event, page);
     }
     
