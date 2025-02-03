@@ -31,13 +31,14 @@ public class SQLUtils {
             ResultSet result = prepared.executeQuery();
             
             return getMedicineData(result, FXCollections.observableArrayList());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error",
                     "Error Refreshing Table",
                     "There was an error running the SQL information to refresh the table."
             );
+            e.printStackTrace();
             return null;
         }
     }
@@ -59,13 +60,14 @@ public class SQLUtils {
             prepared.setDate(7, medicine.getDate());
             prepared.setString(8, medicine.getImagePath());
             prepared.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error",
                     "Error In addItem",
                     "There was an error running the SQL information to add to the table."
             );
+            e.printStackTrace();
         }
     }
     
@@ -88,13 +90,14 @@ public class SQLUtils {
             prepared.setString(8, medicine.getImagePath());
             prepared.setString(9, medicine.getId());
             prepared.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error",
                     "Error in updateItem",
                     "There was an error running the SQL information to update the table."
             );
+            e.printStackTrace();
         }
     }
     
@@ -107,13 +110,14 @@ public class SQLUtils {
             
             prepared.setString(1, id);
             prepared.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error",
                     "Error in deleteItem",
                     "There was an error deleting an item from the table."
             );
+            e.printStackTrace();
         }
     }
     
@@ -131,13 +135,14 @@ public class SQLUtils {
             ResultSet result = prepared.executeQuery();
             
             return getMedicineData(result, FXCollections.observableArrayList());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error",
                     "Error in searchTable",
                     "There was an error running the SQL information to search through the table."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -177,13 +182,14 @@ public class SQLUtils {
                 // gets the user from the database after creating it, only does recursion once
                 return runFormSQL(sql, new User(username, password), true);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error in runFormSQL",
                     "Error Running SQL",
                     "There was an error running the SQL information, or that user doesn't exist."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -204,13 +210,14 @@ public class SQLUtils {
                         result.getString("secQuestion"),
                         result.getString("secAnswer")
                 );
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error in getUser",
                     "Error Getting User From Database",
                     "There was an error getting a user from the database, please try again."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -225,13 +232,14 @@ public class SQLUtils {
             prepared.setString(1, password);
             prepared.setString(2, username);
             prepared.executeUpdate();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error in setPassword",
                     "Error setting a password",
                     "There was an error setting a password for this user, please try again."
             );
+            e.printStackTrace();
         }
     }
     
@@ -249,13 +257,14 @@ public class SQLUtils {
                         result.getDate("date"),
                         result.getString("imagePath")));
             return data;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error in getMedicineData",
                     "Error Compiling Medicine Data",
                     "There was an error compiling all medicine data from the database, please try again."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -272,13 +281,14 @@ public class SQLUtils {
             while (result.next())
                 data.add(result.getString(1));
             return data;
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error in getOptions",
                     "Error getting '" + column + "' medicine options",
                     "There was an error getting '" + column + "' options from the database, please try again."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -306,13 +316,14 @@ public class SQLUtils {
                         result.getDate(8),
                         result.getString(9)
                 );
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Error In getMedicine",
                     "Error Getting Medicine From Database",
                     "There was an error getting medicine from the database, please try again."
             );
+            e.printStackTrace();
         }
         return null;
     }
@@ -320,13 +331,14 @@ public class SQLUtils {
     private static Connection connectDB() {
         try {
             return DriverManager.getConnection("jdbc:mysql://localhost:3306/pharmacy", "root", "password");
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Connection Error",
                     "Error Connecting To Pharmacy Database",
                     "Database could not be connected to, please try again."
             );
+            e.printStackTrace();
         }
         return null;
     }

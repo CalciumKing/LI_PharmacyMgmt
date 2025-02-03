@@ -26,16 +26,16 @@
             <Image url="@../../../../../../bin/images/OCLogo.png" />
         </ImageView>
     </AnchorPane>
-    <AnchorPane fx:id="databasePage" prefHeight="410.0" prefWidth="606.0" visible="false">
-        <TableView fx:id="medicine_table" layoutX="124.0" layoutY="43.0" onMouseClicked="#selected" prefHeight="215.0" prefWidth="462.0">
+    <AnchorPane fx:id="databasePage" prefHeight="410.0" prefWidth="606.0">
+        <TableView fx:id="medicine_table" layoutX="104.0" layoutY="27.0" onMouseClicked="#selected" prefHeight="231.0" prefWidth="510.0">
             <columns>
-                <TableColumn fx:id="id_col" prefWidth="54.66667938232422" text="ID" />
-                <TableColumn fx:id="brand_col" prefWidth="72.00006103515625" text="Brand" />
-                <TableColumn fx:id="product_col" prefWidth="92.00001525878906" text="Product Name" />
-                <TableColumn fx:id="price_col" prefWidth="54.6666259765625" text="Price" />
-                <TableColumn fx:id="type_col" prefWidth="72.0" text="Type" />
-                <TableColumn fx:id="status_col" prefWidth="89.33331298828125" text="Status" />
-            <TableColumn fx:id="date_col" prefWidth="89.33331298828125" text="Date" />
+                <TableColumn fx:id="id_col" prefWidth="64.0000228881836" text="ID" />
+                <TableColumn fx:id="brand_col" prefWidth="73.33334350585938" text="Brand" />
+                <TableColumn fx:id="product_col" prefWidth="88.00001525878906" text="Product Name" />
+                <TableColumn fx:id="price_col" prefWidth="46.0" text="Price" />
+                <TableColumn fx:id="type_col" prefWidth="85.3333740234375" text="Type" />
+                <TableColumn fx:id="status_col" prefWidth="71.99996948242188" text="Status" />
+            <TableColumn fx:id="date_col" prefWidth="79.3333740234375" text="Date" />
             </columns>
         </TableView>
         <TextField fx:id="id_field" layoutX="124.0" layoutY="265.0" prefHeight="25.0" prefWidth="82.0" promptText="ID:" />
@@ -81,7 +81,7 @@
       <ComboBox fx:id="typeBox" layoutX="217.0" layoutY="303.0" prefHeight="25.0" prefWidth="82.0" promptText="Type" />
       <ComboBox fx:id="statusBox" layoutX="217.0" layoutY="341.0" prefHeight="25.0" prefWidth="82.0" promptText="Status" />
     </AnchorPane>
-   <AnchorPane fx:id="purchasePage" layoutX="10.0" layoutY="10.0" prefHeight="400.0" prefWidth="594.0">
+   <AnchorPane fx:id="purchasePage" layoutX="10.0" layoutY="10.0" prefHeight="400.0" prefWidth="594.0" visible="false">
       <children>
          <TableView fx:id="purchase_table" layoutX="102.0" layoutY="33.0" onMouseClicked="#purchaseTableSelectItem" prefHeight="357.0" prefWidth="349.0">
             <columns>

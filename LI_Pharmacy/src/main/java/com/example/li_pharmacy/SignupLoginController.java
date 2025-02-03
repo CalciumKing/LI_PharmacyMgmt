@@ -18,12 +18,12 @@ public class SignupLoginController implements Initializable {
     @FXML
     private AnchorPane page, forgotPasswordPane, securityQuestionPane, loginPane, signupPane;
     private final String[] securityQuestions = {
-            "What was the name of your favorite childhood pet?",
+            "What was the name of your favorite pet?",
             "What year was your grandmother born?",
             "What month was your first child born?",
-            "What breed of cat do you like the most?",
-            "What was the name of your school physical education teacher?",
-            "In which area of the city is your place of work located?"
+            "Favorite breed of cat?",
+            "Name of your school gym teacher?",
+            "In which city is your work located?"
     };
     private String securityQuestion;
     private String securityAnswer;
@@ -116,16 +116,24 @@ public class SignupLoginController implements Initializable {
     
     @FXML
     private void checkValidUser() {
-        User user = SQLUtils.getUser(username.getText());
-        if (pageStatus == 2 && user != null) {
+        if (pageStatus == 2) {
+            User user = SQLUtils.getUser(username.getText());
+            if(user == null) {
+                Utils.errorAlert(
+                        Alert.AlertType.ERROR,
+                        "Null User",
+                        "That User Does Not Exist",
+                        "Please enter information for a user that already exists."
+                );
+                securityQuestionLabel.setText("Security Question Here");
+                securityQuestionPane.setVisible(false);
+                return;
+            }
+            
             securityQuestion = user.getSecurityQuestion();
             securityAnswer = user.getSecurityAnswer();
             securityQuestionLabel.setText(securityQuestion);
-            
             securityQuestionPane.setVisible(true);
-        } else {
-            securityQuestionLabel.setText("Security Question Here");
-            securityQuestionPane.setVisible(false);
         }
     }
     

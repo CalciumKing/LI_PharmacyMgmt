@@ -209,7 +209,12 @@ public class DashboardController implements Initializable {
                 typeBox.getValue().isEmpty() || statusBox.getValue().isEmpty() ||
                 typeBox.getValue().equals("Type") || statusBox.getValue().equals("Status") ||
                 imagePath.isEmpty()) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Invalid Fields",
+                    "All Fields Must Be Filled In"
+            );
             return true;
         }
         return false;
@@ -256,16 +261,18 @@ public class DashboardController implements Initializable {
         try {
             FileChooser open = new FileChooser();
             open.setTitle("Open Image File");
-            open.getExtensionFilters().add(new FileChooser.ExtensionFilter(
-                    "Image File", "*.jpg", "*.jpeg", "*.png"));
+            open.getExtensionFilters().add(
+                    new FileChooser.ExtensionFilter(
+                            "Image File", "*.jpg", "*.jpeg", "*.png"
+                    )
+            );
             File saveFolder = new File("bin\\Images");
             open.setInitialDirectory(saveFolder);
             
             File file = open.showOpenDialog(medicine_img.getScene().getWindow());
             
             if (file != null) {
-                if (!saveFolder.exists() && !saveFolder.mkdirs())
-                    return;
+                if (!saveFolder.exists() && !saveFolder.mkdirs()) return;
                 
                 File saveFile = new File(saveFolder, file.getName());
                 Files.copy(file.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -274,8 +281,14 @@ public class DashboardController implements Initializable {
                 medicine_img.setImage(image);
                 imagePath = saveFile.getPath();
             }
-        } catch (Exception ignored) {
-            Utils.errorAlert(Alert.AlertType.INFORMATION, "Form Validation", "Invalid Fields", "All Fields Must Be Filled In");
+        } catch (Exception e) {
+            Utils.errorAlert(
+                    Alert.AlertType.INFORMATION,
+                    "Form Validation",
+                    "Invalid Fields",
+                    "All Fields Must Be Filled In"
+            );
+            e.printStackTrace();
         }
     }
     
@@ -418,6 +431,7 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void changeCost() {
+        if (spinner.getValue() == 0) return;
         double price = Utils.safeParseDouble(purchasePriceBox.getValue());
         if (price != -1.00)
             med_cost_label.setText("$" + (Utils.formatDouble(spinner.getValue() * price)));
@@ -442,7 +456,7 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void windowDrag(MouseEvent event) {
-        if(alreadyMaximized)
+        if (alreadyMaximized)
             windowMaximize();
         Utils.windowDrag(event, dashboard);
     }

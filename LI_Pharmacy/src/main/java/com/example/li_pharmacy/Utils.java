@@ -67,13 +67,14 @@ public class Utils {
             stage.setTitle("Pharmacy Application");
             stage.setScene(new Scene(root));
             stage.show();
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             errorAlert(
                     Alert.AlertType.ERROR,
                     "Scene Error",
                     "Error Changing Scene",
                     "There was an error changing scenes, please try again"
             );
+            e.printStackTrace();
         }
     }
     
@@ -119,21 +120,20 @@ public class Utils {
     public static double safeParseDouble(String value) {
         try {
             return Double.parseDouble(value);
-        } catch (NumberFormatException ignored) {
+        } catch (NumberFormatException e) {
             Utils.errorAlert(
                     Alert.AlertType.ERROR,
                     "Safe Parse Double Error",
                     "Error Parsing a String Value To A Double",
                     "Cannot parse " + value + " into a double, please try again."
             );
+            e.printStackTrace();
             return formatDouble(-1);
         }
     }
     
     public static double formatDouble(double value) {
-        DecimalFormat df = new DecimalFormat("#.00");
-        System.out.println(df.format(value));
-        return safeParseDouble(df.format(value));
+        return safeParseDouble(new DecimalFormat("#.00").format(value));
     }
     // endregion
     
