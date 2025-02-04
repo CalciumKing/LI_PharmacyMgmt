@@ -23,6 +23,7 @@ import java.sql.Date;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class DashboardController implements Initializable {
@@ -382,6 +383,45 @@ public class DashboardController implements Initializable {
         
         cartItems = filterMedicineTable();
         purchase_table.setItems(cartItems);
+        
+        purchaseTypeBox.setItems(filterMedicineDropdowns(Medicine::getType));
+        purchaseBrandBox.setItems(filterMedicineDropdowns(Medicine::getBrand));
+        purchaseNameBox.setItems(filterMedicineDropdowns(Medicine::getProductName));
+        purchasePriceBox.setItems(filterMedicineDropdowns(med -> String.valueOf(med.getPrice())));
+    }
+    
+//    @FXML
+//    private void filterData(ActionEvent event) {
+//        if(typeBox.getValue() == null){
+//            initDropdowns();
+//        }else{
+//            cartItems = filterMedicineTable();
+//            purchase_table.setItems(cartItems);
+//
+//            ObservableList<String> filteredData = FXCollections.observableArrayList();
+//
+//            for(Medicine medicineData : cartItems){
+//                if(medicineData.getType().equals(typeBox.getValue()))
+//                    filteredData.add(medicineData.getBrand());
+//            }
+//            ComboBox<String> box = (ComboBox<String>) event.getSource();
+//            box.setItems(filteredData);
+//        }
+//    }
+    
+    private ObservableList<String> filterMedicineDropdowns(Function<Medicine, String> getValue) {
+        ObservableList<String> filteredItems = FXCollections.observableArrayList();
+        
+        for (Medicine med : cartItems) {
+            String value = getValue.apply(med);
+            if (value != null && !filteredItems.contains(value))
+                filteredItems.add(value);
+        }
+        
+        if (filteredItems.isEmpty())
+            filteredItems.add("No options available");
+        
+        return filteredItems;
     }
     
     private ObservableList<Medicine> filterMedicineTable() {

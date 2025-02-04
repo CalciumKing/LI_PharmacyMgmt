@@ -5,11 +5,9 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.function.Predicate;
 
 public class SQLUtils {
+    // region Login/Register Page
     public static User register(String username, String password,
                                 String securityQuestion, String securityAnswer) {
         String sql = "insert into users (username, password, secQuestion, secAnswer) values (?, ?, ?, ?);";
@@ -20,6 +18,7 @@ public class SQLUtils {
         String sql = "select * from users where username = ? and password = ? limit 1;";
         return runFormSQL(sql, new User(username, password), true);
     }
+    // endregion
     
     // region Medicine Table
     public static ObservableList<Medicine> refreshTable() {
@@ -253,7 +252,7 @@ public class SQLUtils {
                         result.getString("productName"),
                         result.getString("type"),
                         result.getString("status"),
-                        result.getDouble("price"),
+                        Utils.formatDouble(result.getDouble("price")),
                         result.getDate("date"),
                         result.getString("imagePath")));
             return data;
@@ -312,7 +311,7 @@ public class SQLUtils {
                         result.getString(4),
                         result.getString(5),
                         result.getString(6),
-                        result.getDouble(7),
+                        Utils.formatDouble(result.getDouble(7)),
                         result.getDate(8),
                         result.getString(9)
                 );
