@@ -387,7 +387,7 @@ public class DashboardController implements Initializable {
         purchaseTypeBox.setItems(filterMedicineDropdowns(Medicine::getType));
         purchaseBrandBox.setItems(filterMedicineDropdowns(Medicine::getBrand));
         purchaseNameBox.setItems(filterMedicineDropdowns(Medicine::getProductName));
-        purchasePriceBox.setItems(filterMedicineDropdowns(med -> String.valueOf(med.getPrice())));
+        purchasePriceBox.setItems(filterMedicineDropdowns(i -> String.valueOf(i.getPrice())));
     }
     
 //    @FXML
