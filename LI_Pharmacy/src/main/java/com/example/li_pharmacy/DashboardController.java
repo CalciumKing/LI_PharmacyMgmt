@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 public class DashboardController implements Initializable {
     // region Variables
     @FXML
-    private TextField id_field, brand_field, product_field, price_field, searchBar, scanner_id_field;
+    private TextField id_field, brand_field, product_field, price_field, searchBar, scanner_id_field, paid_field;
     
     @FXML
     private Button dashBoard_btn, medicine_btn, purchase_btn;
@@ -41,7 +41,7 @@ public class DashboardController implements Initializable {
     private String imagePath = "";
     
     @FXML
-    private Label welcomeText, med_cost_label, cart_total_label;
+    private Label welcomeText, med_cost_label, subtotal_label, grand_total_label, change_label;
     
     @FXML
     private ComboBox<String> typeBox, statusBox, purchaseTypeBox, purchaseBrandBox, purchaseNameBox, purchasePriceBox;
@@ -99,10 +99,10 @@ public class DashboardController implements Initializable {
         typeBox.setItems(FXCollections.observableArrayList("Pain Relievers", "Antibiotics", "Cardiovascular", "Metabolic", "Respiratory"));
         statusBox.setItems(FXCollections.observableArrayList("Available", "Not Available"));
         
-        purchaseTypeBox.setItems(SQLUtils.getOptions("type"));
-        purchaseBrandBox.setItems(SQLUtils.getOptions("brand"));
-        purchaseNameBox.setItems(SQLUtils.getOptions("productName"));
-        purchasePriceBox.setItems(SQLUtils.getOptions("price"));
+        purchaseTypeBox.setItems(SQLUtils.getOptions("type", null, null));
+        purchaseBrandBox.setItems(SQLUtils.getOptions("brand", null, null));
+        purchaseNameBox.setItems(SQLUtils.getOptions("productName", null, null));
+        purchasePriceBox.setItems(SQLUtils.getOptions("price", null, null));
 
 //        purchaseTypeBox.getSelectionModel().clearSelection();
 //        purchaseTypeBox.setPromptText("2");
@@ -223,8 +223,6 @@ public class DashboardController implements Initializable {
     
     @FXML
     private void clearMedicineForm() {
-        initDropdowns();
-        
         id_field.clear();
         brand_field.clear();
         product_field.clear();
@@ -316,7 +314,8 @@ public class DashboardController implements Initializable {
         
         cart.put(item, spinner.getValue());
         cartPrice += amount;
-        cart_total_label.setText("$" + cartPrice);
+        subtotal_label.setText("Subtotal: $" + cartPrice);
+        grand_total_label.setText("Grand Total: $" + (Utils.formatDouble(cartPrice * 1.0625)));
 
 //        clearMedicine();
     }
@@ -342,7 +341,7 @@ public class DashboardController implements Initializable {
             num = amount;
         
         cartPrice -= item.getPrice() * num;
-        cart_total_label.setText("$" + cartPrice);
+        subtotal_label.setText("$" + cartPrice);
         
         if(num == amount)
             cart.remove(item);
@@ -358,7 +357,7 @@ public class DashboardController implements Initializable {
 //        clearMedicine();
         initDropdowns();
         
-        cart_total_label.setText("$0.00");
+        subtotal_label.setText("$0.00");
         cartPrice = 0.00;
         cart.clear();
         
@@ -380,48 +379,17 @@ public class DashboardController implements Initializable {
     @FXML
     private void searchMeds() {
         if (programmedAction) return;
+        programmedAction = true;
         
         cartItems = filterMedicineTable();
         purchase_table.setItems(cartItems);
         
-        purchaseTypeBox.setItems(filterMedicineDropdowns(Medicine::getType));
-        purchaseBrandBox.setItems(filterMedicineDropdowns(Medicine::getBrand));
-        purchaseNameBox.setItems(filterMedicineDropdowns(Medicine::getProductName));
-        purchasePriceBox.setItems(filterMedicineDropdowns(i -> String.valueOf(i.getPrice())));
-    }
-    
-//    @FXML
-//    private void filterData(ActionEvent event) {
-//        if(typeBox.getValue() == null){
-//            initDropdowns();
-//        }else{
-//            cartItems = filterMedicineTable();
-//            purchase_table.setItems(cartItems);
-//
-//            ObservableList<String> filteredData = FXCollections.observableArrayList();
-//
-//            for(Medicine medicineData : cartItems){
-//                if(medicineData.getType().equals(typeBox.getValue()))
-//                    filteredData.add(medicineData.getBrand());
-//            }
-//            ComboBox<String> box = (ComboBox<String>) event.getSource();
-//            box.setItems(filteredData);
-//        }
-//    }
-    
-    private ObservableList<String> filterMedicineDropdowns(Function<Medicine, String> getValue) {
-        ObservableList<String> filteredItems = FXCollections.observableArrayList();
+        purchaseTypeBox.setItems(SQLUtils.getOptions("type", null, null));
+        purchaseBrandBox.setItems(SQLUtils.getOptions("brand", "type", purchaseTypeBox.getSelectionModel().getSelectedItem()));
+        purchaseNameBox.setItems(SQLUtils.getOptions("productName", "brand", purchaseBrandBox.getSelectionModel().getSelectedItem()));
+        purchasePriceBox.setItems(SQLUtils.getOptions("price", "productName", purchaseNameBox.getSelectionModel().getSelectedItem()));
         
-        for (Medicine med : cartItems) {
-            String value = getValue.apply(med);
-            if (value != null && !filteredItems.contains(value))
-                filteredItems.add(value);
-        }
-        
-        if (filteredItems.isEmpty())
-            filteredItems.add("No options available");
-        
-        return filteredItems;
+        programmedAction = false;
     }
     
     private ObservableList<Medicine> filterMedicineTable() {
@@ -462,7 +430,7 @@ public class DashboardController implements Initializable {
         purchaseNameBox.setValue(item.getProductName());
         purchasePriceBox.setValue(String.valueOf(Utils.formatDouble(item.getPrice())));
         spinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 100, 1));
-        med_cost_label.setText("$" + (spinner.getValue() * item.getPrice()));
+        med_cost_label.setText("Med Cost: $" + (spinner.getValue() * item.getPrice()));
         
         cartItems = filterMedicineTable();
         purchase_table.setItems(cartItems);
@@ -474,7 +442,16 @@ public class DashboardController implements Initializable {
         if (spinner.getValue() == 0) return;
         double price = Utils.safeParseDouble(purchasePriceBox.getValue());
         if (price != -1.00)
-            med_cost_label.setText("$" + (Utils.formatDouble(spinner.getValue() * price)));
+            med_cost_label.setText("Med Cost: $" + (Utils.formatDouble(spinner.getValue() * price)));
+    }
+    
+    @FXML
+    private void pay() {
+        String amount = paid_field.getText();
+        amount = !amount.matches("^\\d*.\\d\\d$") ? amount.replaceAll("\\D", "") : amount; // regex needs to be fixed
+        double change = Utils.safeParseDouble(grand_total_label.getText().substring(14)) - Utils.safeParseDouble(amount);
+        if(change < 0)
+            change_label.setText("Change: $" + Utils.formatDouble(Math.abs(change)));
     }
     // endregion
     

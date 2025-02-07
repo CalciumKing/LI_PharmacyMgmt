@@ -83,13 +83,13 @@
     </AnchorPane>
    <AnchorPane fx:id="purchasePage" layoutX="10.0" layoutY="10.0" prefHeight="400.0" prefWidth="594.0">
       <children>
-         <TableView fx:id="purchase_table" layoutX="102.0" layoutY="33.0" onMouseClicked="#purchaseTableSelectItem" prefHeight="357.0" prefWidth="349.0">
+         <TableView fx:id="purchase_table" layoutX="94.0" layoutY="16.0" onMouseClicked="#purchaseTableSelectItem" prefHeight="384.0" prefWidth="357.0">
             <columns>
                <TableColumn fx:id="purchase_id" prefWidth="60.666725158691406" text="ID" />
-               <TableColumn fx:id="purchase_type" prefWidth="70.00004577636719" text="Type" />
-               <TableColumn fx:id="purchase_brand" prefWidth="71.333251953125" text="Brand" />
-               <TableColumn fx:id="purchase_product_name" prefWidth="90.0" text="Product Name" />
-               <TableColumn fx:id="purchase_price" minWidth="0.6666259765625" prefWidth="56.66668701171875" text="Price" />
+               <TableColumn fx:id="purchase_type" prefWidth="79.99996948242188" text="Type" />
+               <TableColumn fx:id="purchase_brand" prefWidth="78.66670227050781" text="Brand" />
+               <TableColumn fx:id="purchase_product_name" text="Product Name" />
+               <TableColumn fx:id="purchase_price" minWidth="0.6666259765625" prefWidth="56.6666259765625" text="Price" />
             </columns>
          </TableView>
          <TextField fx:id="grade_field1" disable="true" layoutX="306.0" layoutY="67.0" prefHeight="15.0" prefWidth="115.0" promptText="Grade:" visible="false" />
@@ -119,17 +119,12 @@
                <Cursor fx:constant="HAND" />
             </cursor>
          </ComboBox>
-         <Label layoutX="476.0" layoutY="192.0" text="Medicine Cost:">
+         <Label fx:id="med_cost_label" layoutX="475.0" layoutY="183.0" text="Med Cost: $0.00">
             <font>
                <Font size="15.0" />
             </font>
          </Label>
-         <Label fx:id="med_cost_label" layoutX="511.0" layoutY="215.0" text="\$0.00">
-            <font>
-               <Font size="15.0" />
-            </font>
-         </Label>
-         <Button layoutX="456.0" layoutY="242.0" mnemonicParsing="false" onAction="#addToCart" prefHeight="32.0" prefWidth="139.0" styleClass="notActive" text="Add Item To Cart">
+         <Button layoutX="456.0" layoutY="207.0" mnemonicParsing="false" onAction="#addToCart" prefHeight="32.0" prefWidth="139.0" styleClass="notActive" text="Add Item To Cart">
             <graphic>
                <FontAwesomeIcon glyphName="PLUS" />
             </graphic>
@@ -153,12 +148,18 @@
                <FontAwesomeIcon glyphName="TRASH" />
             </graphic>
          </Button>
-         <Label layoutX="497.0" layoutY="355.0" text="Cart Total:">
+         <Label fx:id="subtotal_label" layoutX="475.0" layoutY="246.0" text="Subtotal: $0.00">
             <font>
                <Font size="15.0" />
             </font>
          </Label>
-         <Label fx:id="cart_total_label" layoutX="511.0" layoutY="378.0" text="\$0.00">
+         <Label fx:id="grand_total_label" layoutX="466.0" layoutY="267.0" text="Grand Total: $0.00">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Label>
+         <TextField fx:id="paid_field" layoutX="470.0" layoutY="292.0" onAction="#pay" prefHeight="25.0" prefWidth="107.0" promptText="Paid: 0.00" />
+         <Label fx:id="change_label" layoutX="478.0" layoutY="323.0" text="Change: $0.00">
             <font>
                <Font size="15.0" />
             </font>

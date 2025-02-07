@@ -268,15 +268,20 @@ public class SQLUtils {
         return null;
     }
     
-    public static ObservableList<String> getOptions(String column) {
+    public static ObservableList<String> getOptions(String column, String category, String catVal) {
         try (Connection connection = connectDB()) {
             if (connection == null) return null;
             
-            String sql = "select distinct " + column + " from medicine;";
+            String sql = "select distinct " + column + " from medicine";
+            if(category != null && catVal != null)
+                sql += " where " + category + " = ?;";
+            
             PreparedStatement prepared = connection.prepareStatement(sql);
+            if(category != null && catVal != null)
+                prepared.setString(1, catVal);
+            
             ResultSet result = prepared.executeQuery();
             ObservableList<String> data = FXCollections.observableArrayList();
-            
             while (result.next())
                 data.add(result.getString(1));
             return data;
