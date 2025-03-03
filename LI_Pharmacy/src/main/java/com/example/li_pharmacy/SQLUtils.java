@@ -46,7 +46,7 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return;
             
-            String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date, imagePath)" +
+            String sql = "insert into medicine (medicineID, brand, productName, price, type, status, date, imagePath) " +
                     "values (?, ?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement prepared = connection.prepareStatement(sql);
             
@@ -74,8 +74,8 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return;
             
-            String sql = "update medicine" +
-                    "set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ?, imagePath = ?" +
+            String sql = "update medicine " +
+                    "set medicineID = ?, brand = ?, productName = ?, type = ?, status = ?, price = ?, date = ?, imagePath = ? " +
                     "where medicineID = ?;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             
@@ -124,7 +124,7 @@ public class SQLUtils {
         try (Connection connection = connectDB()) {
             if (connection == null) return null;
             
-            String sql = "select * from medicine" +
+            String sql = "select * from medicine " +
                     "where medicineID like ? or brand like ? or productName like ? or type like ? or status like ?;";
             PreparedStatement prepared = connection.prepareStatement(sql);
             

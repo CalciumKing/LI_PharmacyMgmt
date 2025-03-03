@@ -41,7 +41,7 @@ public class DashboardController implements Initializable {
     private String imagePath = "";
     
     @FXML
-    private Label welcomeText, med_cost_label, subtotal_label, grand_total_label, change_label;
+    private Label welcomeText, med_cost_label, subtotal_label, grand_total_label, change_label, remaining_pay_label;
     
     @FXML
     private ComboBox<String> typeBox, statusBox, purchaseTypeBox, purchaseBrandBox, purchaseNameBox, purchasePriceBox;
@@ -448,10 +448,27 @@ public class DashboardController implements Initializable {
     @FXML
     private void pay() {
         String amount = paid_field.getText();
-        amount = !amount.matches("^\\d*.\\d\\d$") ? amount.replaceAll("\\D", "") : amount; // regex needs to be fixed
-        double change = Utils.safeParseDouble(grand_total_label.getText().substring(14)) - Utils.safeParseDouble(amount);
-        if(change < 0)
+        if(!amount.matches("^[0-9]+(\\.[0-9]{2})?$")) {
+            Utils.errorAlert(
+                    Alert.AlertType.ERROR,
+                    "Form Validation",
+                    "Invalid Price",
+                    "Price Field Must Be Filled In Correctly Following Decimal Format # or #.##"
+            );
+            return;
+        }
+        
+        double change = Utils.safeParseDouble(grand_total_label.getText().split("Grand Total: \\$")[1]) - Utils.safeParseDouble(amount);
+        if(change == 0) {
+            change_label.setText("Change: $0.00");
+            remaining_pay_label.setText("Remaining: $0.00");
+        } else if(change < 0) {
             change_label.setText("Change: $" + Utils.formatDouble(Math.abs(change)));
+            remaining_pay_label.setText("Remaining: $0.00");
+        } else if(change > 0) {
+            change_label.setText("Change: $0.00");
+            remaining_pay_label.setText("Remaining: $" + Utils.formatDouble(Math.abs(change)));
+        }
     }
     // endregion
     

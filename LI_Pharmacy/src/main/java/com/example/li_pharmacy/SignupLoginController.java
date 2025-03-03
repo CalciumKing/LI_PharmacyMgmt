@@ -121,9 +121,9 @@ public class SignupLoginController implements Initializable {
             if(user == null) {
                 Utils.errorAlert(
                         Alert.AlertType.ERROR,
-                        "Null User",
-                        "That User Does Not Exist",
-                        "Please enter information for a user that already exists."
+                        "Null Login",
+                        "Error Logging In",
+                        "Please enter the correct information for a user that already exists."
                 );
                 securityQuestionLabel.setText("Security Question Here");
                 securityQuestionPane.setVisible(false);

@@ -159,7 +159,12 @@
             </font>
          </Label>
          <TextField fx:id="paid_field" layoutX="470.0" layoutY="292.0" onAction="#pay" prefHeight="25.0" prefWidth="107.0" promptText="Paid: 0.00" />
-         <Label fx:id="change_label" layoutX="478.0" layoutY="323.0" text="Change: $0.00">
+         <Label fx:id="change_label" layoutX="479.0" layoutY="338.0" text="Change: $0.00">
+            <font>
+               <Font size="15.0" />
+            </font>
+         </Label>
+         <Label fx:id="remaining_pay_label" layoutX="467.0" layoutY="317.0" text="Remaining: $0.00">
             <font>
                <Font size="15.0" />
             </font>
